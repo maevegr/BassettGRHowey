@@ -1,0 +1,182 @@
+---
+title: "DataWrangling"
+author: 
+date: "2025-11-30"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(tidyverse);library(lubridate);library(here)
+here()
+```
+
+```{r Data Import:eGRID}
+eGRID23_PLNT <- read.csv(here("Data/egrid2023_data_rev2_PLNT.csv"), 
+                         stringsAsFactors = TRUE) %>% 
+  slice(-1) %>% 
+  replace(is.na(.), 0) %>% 
+  mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
+  mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
+  mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
+  mutate(Plant.annual.NOx.emissions..tons.=as.numeric(
+    Plant.annual.NOx.emissions..tons.)) %>% 
+  mutate(Plant.annual.SO2.emissions..tons.=as.numeric(
+    Plant.annual.SO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CO2.emissions..tons.=as.numeric(
+    Plant.annual.CO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CH4.emissions..lbs.=as.numeric(
+    Plant.annual.CH4.emissions..lbs.)) %>% 
+  mutate(Plant.annual.N2O.emissions..lbs.=as.numeric(
+    Plant.annual.N2O.emissions..lbs.)) %>% 
+  mutate(Plant.annual.CO2.equivalent.emissions..tons.=as.numeric(
+    Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
+  mutate(Plant.annual.Hg.emissions..lbs.=as.numeric(
+    Plant.annual.Hg.emissions..lbs.)) %>% 
+  select("Data.Year", "Plant.state.abbreviation", "Plant.name", 
+         "Plant.county.name", "Plant.latitude", "Plant.longitude", 
+         "Plant.primary.fuel","Plant.annual.NOx.emissions..tons.",
+         "Plant.annual.SO2.emissions..tons.", "Plant.annual.CO2.emissions..tons.",
+         "Plant.annual.CH4.emissions..lbs.","Plant.annual.N2O.emissions..lbs.", 
+         "Plant.annual.CO2.equivalent.emissions..tons.", 
+         "Plant.annual.Hg.emissions..lbs.")  
+  
+  
+
+eGRID22_PLNT <- read.csv(here("Data/egrid2022_data_PLNT.csv"), stringsAsFactors = TRUE) %>% 
+  slice(-1) %>% 
+  mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
+  mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
+  mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
+  mutate(Plant.annual.NOx.emissions..tons.=as.numeric(
+    Plant.annual.NOx.emissions..tons.)) %>% 
+  mutate(Plant.annual.SO2.emissions..tons.=as.numeric(
+    Plant.annual.SO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CO2.emissions..tons.=as.numeric(
+    Plant.annual.CO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CH4.emissions..lbs.=as.numeric(
+    Plant.annual.CH4.emissions..lbs.)) %>% 
+  mutate(Plant.annual.N2O.emissions..lbs.=as.numeric(
+    Plant.annual.N2O.emissions..lbs.)) %>% 
+  mutate(Plant.annual.CO2.equivalent.emissions..tons.=as.numeric(
+    Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
+  mutate(Plant.annual.Hg.emissions..lbs.=as.numeric(
+    Plant.annual.Hg.emissions..lbs.)) %>% 
+  select("Data.Year", "Plant.state.abbreviation", "Plant.name", 
+         "Plant.county.name", "Plant.latitude", "Plant.longitude", 
+         "Plant.primary.fuel","Plant.annual.NOx.emissions..tons.",
+         "Plant.annual.SO2.emissions..tons.", "Plant.annual.CO2.emissions..tons.",
+         "Plant.annual.CH4.emissions..lbs.","Plant.annual.N2O.emissions..lbs.", 
+         "Plant.annual.CO2.equivalent.emissions..tons.", 
+         "Plant.annual.Hg.emissions..lbs.")
+
+eGRID21_PLNT <- read.csv(here("Data/eGRID2021_data_PLNT.csv"), stringsAsFactors = TRUE) %>%
+  slice(-1) %>% 
+  mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
+    mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
+    mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
+    mutate(Plant.annual.NOx.emissions..tons.=as.numeric(
+      Plant.annual.NOx.emissions..tons.)) %>% 
+    mutate(Plant.annual.SO2.emissions..tons.=as.numeric(
+      Plant.annual.SO2.emissions..tons.)) %>% 
+    mutate(Plant.annual.CO2.emissions..tons.=as.numeric(
+      Plant.annual.CO2.emissions..tons.)) %>% 
+    mutate(Plant.annual.CH4.emissions..lbs.=as.numeric(
+      Plant.annual.CH4.emissions..lbs.)) %>% 
+    mutate(Plant.annual.N2O.emissions..lbs.=as.numeric(
+      Plant.annual.N2O.emissions..lbs.)) %>% 
+    mutate(Plant.annual.CO2.equivalent.emissions..tons.=as.numeric(
+      Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
+    mutate(Plant.annual.Hg.emissions..lbs.=as.numeric(
+      Plant.annual.Hg.emissions..lbs.)) %>% 
+  select("Data.Year", "Plant.state.abbreviation", "Plant.name", 
+         "Plant.county.name", "Plant.latitude", "Plant.longitude", 
+         "Plant.primary.fuel","Plant.annual.NOx.emissions..tons.",
+         "Plant.annual.SO2.emissions..tons.", "Plant.annual.CO2.emissions..tons.",
+         "Plant.annual.CH4.emissions..lbs.","Plant.annual.N2O.emissions..lbs.", 
+         "Plant.annual.CO2.equivalent.emissions..tons.", 
+         "Plant.annual.Hg.emissions..lbs.")
+
+
+eGRID20_PLNT <- read.csv(here("Data/eGRID2020_Data_v2_PLNT.csv"), 
+                         stringsAsFactors = TRUE,na.omit()) %>% 
+  slice(-1) %>% 
+  mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
+  mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
+  mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
+  mutate(Plant.annual.NOx.emissions..tons.=as.numeric(
+    Plant.annual.NOx.emissions..tons.)) %>% 
+  mutate(Plant.annual.SO2.emissions..tons.=as.numeric(
+    Plant.annual.SO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CO2.emissions..tons.=as.numeric(
+    Plant.annual.CO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CH4.emissions..lbs.=as.numeric(
+    Plant.annual.CH4.emissions..lbs.)) %>% 
+  mutate(Plant.annual.N2O.emissions..lbs.=as.numeric(
+    Plant.annual.N2O.emissions..lbs.)) %>% 
+  mutate(Plant.annual.CO2.equivalent.emissions..tons.=as.numeric(
+    Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
+  mutate(Plant.annual.Hg.emissions..lbs.=as.numeric(
+    Plant.annual.Hg.emissions..lbs.)) %>% 
+  select("Data.Year", "Plant.state.abbreviation", "Plant.name", 
+         "Plant.county.name", "Plant.latitude", "Plant.longitude", 
+         "Plant.primary.fuel","Plant.annual.NOx.emissions..tons.",
+         "Plant.annual.SO2.emissions..tons.", "Plant.annual.CO2.emissions..tons.",
+         "Plant.annual.CH4.emissions..lbs.","Plant.annual.N2O.emissions..lbs.", 
+         "Plant.annual.CO2.equivalent.emissions..tons.", 
+         "Plant.annual.Hg.emissions..lbs.")
+
+eGRID19_PLNT <- read.csv(here("Data/egrid2019_data_PLNT.csv"), 
+                         stringsAsFactors = TRUE) %>% 
+  slice(-1) %>% 
+  mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
+  mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
+  mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
+  mutate(Plant.annual.NOx.emissions..tons.=as.numeric(
+    Plant.annual.NOx.emissions..tons.)) %>% 
+  mutate(Plant.annual.SO2.emissions..tons.=as.numeric(
+    Plant.annual.SO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CO2.emissions..tons.=as.numeric(
+    Plant.annual.CO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CH4.emissions..lbs.=as.numeric(
+    Plant.annual.CH4.emissions..lbs.)) %>% 
+  mutate(Plant.annual.N2O.emissions..lbs.=as.numeric(
+    Plant.annual.N2O.emissions..lbs.)) %>% 
+  mutate(Plant.annual.CO2.equivalent.emissions..tons.=as.numeric(
+    Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
+  mutate(Plant.annual.Hg.emissions..lbs.=as.numeric(
+    Plant.annual.Hg.emissions..lbs.)) %>% 
+  select("Data.Year", "Plant.state.abbreviation", "Plant.name", 
+         "Plant.county.name", "Plant.latitude", "Plant.longitude", 
+         "Plant.primary.fuel","Plant.annual.NOx.emissions..tons.",
+         "Plant.annual.SO2.emissions..tons.", "Plant.annual.CO2.emissions..tons.",
+         "Plant.annual.CH4.emissions..lbs.","Plant.annual.N2O.emissions..lbs.", 
+         "Plant.annual.CO2.equivalent.emissions..tons.", 
+         "Plant.annual.Hg.emissions..lbs.")
+
+eGRID_PLNT <- rbind (eGRID23_PLNT, eGRID22_PLNT, eGRID21_PLNT, eGRID20_PLNT,
+                     eGRID19_PLNT)
+eGRID_PLNT_NC <- filter (eGRID_PLNT, Plant.state.abbreviation == "NC")
+eGRID_PLNT_NC_CNTY <- group_by(eGRID_PLNT_NC, Plant.county.name, Data.Year) %>% 
+  summarize(CO2_Equiv = sum(Plant.annual.CO2.equivalent.emissions..tons.))
+```
+
+
+
+```{r Data Import: Air Quality}
+NCO3_2018<- read.csv(here("Data/EPAair_O3_NC2018_raw.csv")) %>% 
+  mutate(Date = as.Date(paste0(2018, "-01-01"))) %>% 
+  group_by(COUNTY, Date) %>% 
+  summarise(AverageO3 = mean(Daily.Max.8.hour.Ozone.Concentration), 
+            AverageAQI_O3 = mean(DAILY_AQI_VALUE))
+
+NCPM25_2018 <- read.csv(here("Data/EPAair_PM25_NC2018_raw.csv")) %>% 
+  mutate(Date = as.Date(paste0(2018, "-01-01"))) %>% 
+  group_by(COUNTY, Date) %>% 
+  summarise(AveragePM25 = mean(Daily.Mean.PM2.5.Concentration), 
+            AverageAQI_PM25 = mean(DAILY_AQI_VALUE))
+NCAQ_2018 <- left_join(NCO3_2018, NCPM25_2018, by = "COUNTY")
+
+```
+
