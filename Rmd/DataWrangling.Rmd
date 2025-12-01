@@ -41,10 +41,9 @@ eGRID23_PLNT <- read.csv(here("Data/egrid2023_data_rev2_PLNT.csv"),
          "Plant.annual.CH4.emissions..lbs.","Plant.annual.N2O.emissions..lbs.", 
          "Plant.annual.CO2.equivalent.emissions..tons.", 
          "Plant.annual.Hg.emissions..lbs.")  
-  
-  
 
-eGRID22_PLNT <- read.csv(here("Data/egrid2022_data_PLNT.csv"), stringsAsFactors = TRUE) %>% 
+eGRID22_PLNT <- read.csv(here("Data/egrid2022_data_PLNT.csv"), 
+                         stringsAsFactors = TRUE) %>%
   slice(-1) %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
@@ -71,7 +70,8 @@ eGRID22_PLNT <- read.csv(here("Data/egrid2022_data_PLNT.csv"), stringsAsFactors 
          "Plant.annual.CO2.equivalent.emissions..tons.", 
          "Plant.annual.Hg.emissions..lbs.")
 
-eGRID21_PLNT <- read.csv(here("Data/eGRID2021_data_PLNT.csv"), stringsAsFactors = TRUE) %>%
+eGRID21_PLNT <- read.csv(here("Data/eGRID2021_data_PLNT.csv"), 
+                         stringsAsFactors = TRUE) %>%
   slice(-1) %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
     mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
@@ -165,18 +165,23 @@ eGRID_PLNT_NC_CNTY <- group_by(eGRID_PLNT_NC, Plant.county.name, Data.Year) %>%
 
 
 ```{r Data Import: Air Quality}
-NCO3_2018<- read.csv(here("Data/EPAair_O3_NC2018_raw.csv")) %>% 
-  mutate(Date = as.Date(paste0(2018, "-01-01"))) %>% 
-  group_by(COUNTY, Date) %>% 
-  summarise(AverageO3 = mean(Daily.Max.8.hour.Ozone.Concentration), 
-            AverageAQI_O3 = mean(DAILY_AQI_VALUE))
+Monitors2023 <- read.csv(here("Data/annual_conc_by_monitor_2023.csv"), 
+                   stringsAsFactors = TRUE)
+Monitors2022 <- read.csv(here("Data/annual_conc_by_monitor_2022.csv"), 
+                   stringsAsFactors = TRUE)
+Monitors2021 <- read.csv(here("Data/annual_conc_by_monitor_2021.csv"), 
+                   stringsAsFactors = TRUE)
+Monitors2020 <- read.csv(here("Data/annual_conc_by_monitor_2020.csv"), 
+                   stringsAsFactors = TRUE)
+Monitors2019 <- read.csv(here("Data/annual_conc_by_monitor_2023.csv"), 
+                   stringsAsFactors = TRUE)
 
-NCPM25_2018 <- read.csv(here("Data/EPAair_PM25_NC2018_raw.csv")) %>% 
-  mutate(Date = as.Date(paste0(2018, "-01-01"))) %>% 
-  group_by(COUNTY, Date) %>% 
-  summarise(AveragePM25 = mean(Daily.Mean.PM2.5.Concentration), 
-            AverageAQI_PM25 = mean(DAILY_AQI_VALUE))
-NCAQ_2018 <- left_join(NCO3_2018, NCPM25_2018, by = "COUNTY")
+#NC only AQI reports
+AQI2023 <- read.csv(here("Data/aqireport2023.csv"), stringsAsFactors = TRUE)
+AQI2022 <- read.csv(here("Data/aqireport2022.csv"), stringsAsFactors = TRUE)
+AQI2021 <- read.csv(here("Data/aqireport2021.csv"), stringsAsFactors = TRUE)
+AQI2020 <- read.csv(here("Data/aqireport2020.csv"), stringsAsFactors = TRUE)
+AQI2019 <- read.csv(here("Data/aqireport2019.csv"), stringsAsFactors = TRUE)
 
 ```
 
