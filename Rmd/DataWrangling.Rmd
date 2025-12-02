@@ -13,10 +13,9 @@ here()
 ```
 
 ```{r Data Import:eGRID}
-eGRID23_PLNT <- read.csv(here("Data/egrid2023_data_rev2_PLNT.csv"), 
-                         stringsAsFactors = TRUE) %>% 
+eGRID23_PLNT <- read.csv(here("Data/egrid2023_data_rev2_PLNT.csv"),
+                         na.strings = c("", " ", "0")) %>% 
   slice(-1) %>% 
-  replace(is.na(.), 0) %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
   mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -42,8 +41,8 @@ eGRID23_PLNT <- read.csv(here("Data/egrid2023_data_rev2_PLNT.csv"),
          "Plant.annual.CO2.equivalent.emissions..tons.", 
          "Plant.annual.Hg.emissions..lbs.")  
 
-eGRID22_PLNT <- read.csv(here("Data/egrid2022_data_PLNT.csv"), 
-                         stringsAsFactors = TRUE) %>%
+eGRID22_PLNT <- read.csv(here("Data/egrid2022_data_PLNT.csv"),
+                         na.strings = c("", " ", "0")) %>%
   slice(-1) %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
@@ -71,7 +70,7 @@ eGRID22_PLNT <- read.csv(here("Data/egrid2022_data_PLNT.csv"),
          "Plant.annual.Hg.emissions..lbs.")
 
 eGRID21_PLNT <- read.csv(here("Data/eGRID2021_data_PLNT.csv"), 
-                         stringsAsFactors = TRUE) %>%
+                         na.strings = c("", " ", "0")) %>%
   slice(-1) %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
     mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
@@ -100,7 +99,7 @@ eGRID21_PLNT <- read.csv(here("Data/eGRID2021_data_PLNT.csv"),
 
 
 eGRID20_PLNT <- read.csv(here("Data/eGRID2020_Data_v2_PLNT.csv"), 
-                         stringsAsFactors = TRUE,na.omit()) %>% 
+                         stringsAsFactors = TRUE, na.strings = c("", " ", "0")) %>% 
   slice(-1) %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
@@ -127,8 +126,7 @@ eGRID20_PLNT <- read.csv(here("Data/eGRID2020_Data_v2_PLNT.csv"),
          "Plant.annual.CO2.equivalent.emissions..tons.", 
          "Plant.annual.Hg.emissions..lbs.")
 
-eGRID19_PLNT <- read.csv(here("Data/egrid2019_data_PLNT.csv"), 
-                         stringsAsFactors = TRUE) %>% 
+eGRID19_PLNT <- read.csv(here("Data/egrid2019_data_PLNT.csv"), na.strings = c("", " ", "0")) %>% 
   slice(-1) %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
@@ -165,6 +163,7 @@ eGRID_PLNT_NC_CNTY <- group_by(eGRID_PLNT_NC, Plant.county.name, Data.Year) %>%
 
 
 ```{r Data Import: Air Quality}
+#US Daily Monitors Reports
 Monitors2023 <- read.csv(here("Data/annual_conc_by_monitor_2023.csv"), 
                    stringsAsFactors = TRUE)
 Monitors2022 <- read.csv(here("Data/annual_conc_by_monitor_2022.csv"), 
