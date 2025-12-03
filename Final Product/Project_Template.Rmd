@@ -1,0 +1,74 @@
+\newpage
+\tableofcontents 
+\newpage
+\listoftables 
+\newpage
+\listoffigures 
+\newpage
+
+```{r setup, include=FALSE}
+# Set your working directory
+
+# Load your packages
+
+# Set your ggplot theme
+
+# Load your datasets
+
+```
+
+
+# Rationale and Research Questions
+
+1) Is there a correlation between county level emission levels from power plants and county air quality?
+2)
+3)
+
+\newpage
+
+# Dataset Information
+
+
+
+\newpage
+
+# Exploratory Analysis 
+
+
+\newpage
+
+# Analysis
+
+
+
+## Question 1: Is there a correlation between county level emission levels from power plants and county air quality?
+###How often is emissions data reported?
+Insert chart of number of plants vs number of reporting plants in Texas in one year
+
+Insert map of reporting vs not reporting plants
+
+###How are air quality stations spatially located compared to emissions reporting power plants?
+Insert map of plants and air quality stations
+
+###Are annual county emissions correlated with annual county air quality?
+Insert charts of AQ vs O3 and AQ vs PM25
+Statistical correlation test
+
+
+## Question 2: 
+
+## Question 3: 
+
+
+
+
+\newpage
+
+# Summary and Conclusions
+
+The analysis of correlation between air quality and emissions at the county level per year did not result in significant results. There is not a significant correlation between annual county emission from power plants and average annual county AQI score from Ozone or PM2.5. There are two potential factors influencing this lack of correlation. One is that air quality and emissions cannot be studied at localized scale. Likely emissions disperse out of the county it is in based on local weather patterns. Conducting analysis of local air quality based on power plant emissions might be more accurate if wind patterns were taken into consideration to estimate where emissions may be concentrating. Another reason there may not be a correlation is because there are not enough data points in this analysis to see a trend. All plants do not report emissions and there are not air quality stations in all counties. There were only 5 counties with a PM2.5 monitor and at least one emission reporting plant and only 5 counties with an Ozone monitor and at least oen emission reporting plant. To perform this analysis more accurately, data should be looked at country wide and there should be better standards for ensuring all active power plants report their emissions.
+
+\newpage
+
+# References
+<add references here if relevant, otherwise delete this section> 
