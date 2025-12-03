@@ -98,8 +98,8 @@ eGRID21_PLNT <- read.csv(here("Data/eGRID2021_data_PLNT.csv"),
          "Plant.annual.Hg.emissions..lbs.")
 
 
-eGRID20_PLNT <- read.csv(here("Data/eGRID2020_Data_v2_PLNT.csv"), 
-                         stringsAsFactors = TRUE, na.strings = c("", " ", "0")) %>% 
+eGRID20_PLNT <- read.csv(here("Data/eGRID2020_Data_v2_PLNT.csv"),
+                         na.strings = c("", " ", "0")) %>% 
   slice(-1) %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
@@ -155,9 +155,12 @@ eGRID19_PLNT <- read.csv(here("Data/egrid2019_data_PLNT.csv"), na.strings = c(""
 
 eGRID_PLNT <- rbind (eGRID23_PLNT, eGRID22_PLNT, eGRID21_PLNT, eGRID20_PLNT,
                      eGRID19_PLNT)
-eGRID_PLNT_NC <- filter (eGRID_PLNT, Plant.state.abbreviation == "NC")
-eGRID_PLNT_NC_CNTY <- group_by(eGRID_PLNT_NC, Plant.county.name, Data.Year) %>% 
-  summarize(CO2_Equiv = sum(Plant.annual.CO2.equivalent.emissions..tons.))
+eGRID_PLNT_US <- group_by(eGRID_PLNT, Plant.state.abbreviation,Plant.county.name, Data.Year) %>% 
+  summarize(CO2_Equiv = sum(Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
+  na.omit()
+eGRID_PLNT_TX <- filter(eGRID_PLNT_US,Plant.state.abbreviation == "TX" ) %>% 
+  rename(Date = Data.Year) %>% 
+  rename(County = Plant.county.name)
 ```
 
 
@@ -181,6 +184,50 @@ AQI2022 <- read.csv(here("Data/aqireport2022.csv"), stringsAsFactors = TRUE)
 AQI2021 <- read.csv(here("Data/aqireport2021.csv"), stringsAsFactors = TRUE)
 AQI2020 <- read.csv(here("Data/aqireport2020.csv"), stringsAsFactors = TRUE)
 AQI2019 <- read.csv(here("Data/aqireport2019.csv"), stringsAsFactors = TRUE)
+
+#TX only PM2.5
+TXPM2523 <- read.csv(here("Data/TXPM2523.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  mutate(Year = year(Date)) %>% 
+  mutate(Date=as.Date(paste0(Year, "-01-01")))
+
+TXPM2522 <- read.csv(here("Data/TXPM2522.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  mutate(Year = year(Date)) %>% 
+  mutate(Date=as.Date(paste0(Year, "-01-01")))
+
+TXPM2521 <- read.csv(here("Data/TXPM2521.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  mutate(Year = year(Date)) %>% 
+  mutate(Date=as.Date(paste0(Year, "-01-01")))
+
+TXPM2520 <- read.csv(here("Data/TXPM2520.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  mutate(Year = year(Date)) %>% 
+  mutate(Date=as.Date(paste0(Year, "-01-01")))
+
+TXPM2519 <- read.csv(here("Data/TXPM2519.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  mutate(Year = year(Date)) %>% 
+  mutate(Date=as.Date(paste0(Year, "-01-01")))
+
+TXPM25 <- rbind(TXPM2519, TXPM2520, TXPM2521, TXPM2522, TXPM2523)
+TXPM25_CNTY <- TXPM25 %>% 
+  group_by(Date, County) %>% 
+  summarize(Avg_AQI = mean(Daily.AQI.Value))
+
+
+#TX Emissions and PM25
+TXEmissions_PM25 <- left_join(TXPM25_CNTY, eGRID_PLNT_TX, by = c("Date", "County"))
+
+
+
+
 
 ```
 
