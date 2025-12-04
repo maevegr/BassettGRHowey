@@ -314,8 +314,8 @@ ggplot()+
 
 ggplot() +
   geom_sf(data = Texas_Counties)+
-  geom_sf(data = Plant_Locations, shape = 21,fill=NA,color="blue",stroke=0.2, aes(size=AVG.CO2))+
-  labs(size="Average Annual CO2 Equivalent (tons)")+
+  #geom_sf(data = Plant_Locations, shape = 21,fill=NA,color="blue",stroke=0.2, aes(size=AVG.CO2))+
+  #labs(size="Average Annual CO2 Equivalent (tons)")+
   ggtitle("Reporting Emissions from Power Plants in Texas")+
   theme(legend.position = "bottom")+
   geom_sf(data = Ozone_Locations,color="red",size=0.3)+
@@ -331,7 +331,7 @@ Emissions_O3 <- TXEmissions_Ozone %>%
   geom_point(aes(color = Date))+
   xlab("Annual CO2 Equivalent Emissions per County (tons)")+
   ylab("Average Daily Ozone AQI Value per County")+
-  ggtitle("Average Daily Ozone AQI Value vs. Annual CO2 Equivalent Emissions from Reporting Power Plants per County", subtitle = "Texas, 2018 - 2023")
+  ggtitle("Average Daily Ozone AQI Value vs. Annual CO2 Equivalent Emissions from Reporting Power Plants per County", subtitle = "Texas, 2019 - 2023")
   
 
 Emissions_O3
@@ -345,7 +345,7 @@ Emissions_PM25<-TXEmissions_PM25 %>%
   geom_point(aes(color = Date))+
   xlab("Annual CO2 Equivalent Emissions per County (tons)")+
   ylab("Average Daily PM2.5 AQI Value per County")+
-  ggtitle("Average Daily PM2.5 AQI Value vs. Annual CO2 Equivalent Emissions from Reporting Power Plants per County", subtitle = "Texas, 2018 - 2023")
+  ggtitle("Average Daily PM2.5 AQI Value vs. Annual CO2 Equivalent Emissions from Reporting Power Plants per County", subtitle = "Texas, 2019 - 2023")
 
 Emissions_PM25
 
