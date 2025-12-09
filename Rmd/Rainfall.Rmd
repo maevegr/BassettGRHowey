@@ -150,7 +150,82 @@ summary(HarrisDallasPM.anova)
 
 
 ```{r}
-#could do some plots
+#could do some plots/make these better
 #HarrisDallas <- rbind(HarrisCoRain_AQ, DallasCoRain_AQ)
+
+print(plot(HarrisCoRain_AQ$Date,HarrisCoRain_AQ$Avg_Rain))
+print(plot(HarrisCoRain_AQ$Date,HarrisCoRain_AQ$Avg_AQI_Ozone))
+print(plot(HarrisCoRain_AQ$Date,HarrisCoRain_AQ$Avg_AQI_PM))
+
+print(plot(DallasCoRain_AQ$Date,DallasCoRain_AQ$Avg_Rain))
+print(plot(DallasCoRain_AQ$Date,DallasCoRain_AQ$Avg_AQI_Ozone))
+print(plot(DallasCoRain_AQ$Date,DallasCoRain_AQ$Avg_AQI_PM))
+
+Rainplot<-HarrisCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_Rain))+
+  labs(
+    x="Date",
+    y="Rainfall (in)")+
+  geom_point(size=0.5)+
+  ggtitle('Harris County Rainfall 2019-2023')
+print(Rainplot)
+
+Rainplot2<-DallasCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_Rain))+
+  labs(
+    x="Date",
+    y="Rainfall (in)")+
+  geom_point(size=0.5)+
+  ggtitle('Dallas County Rainfall 2019-2023')
+print(Rainplot2)
+
+Ozoneplot<-HarrisCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_AQI_Ozone))+
+  labs(
+    x="Date",
+    y="Ozone")+
+  geom_point(size=0.5)+
+  ggtitle('Harris County Ozone 2019-2023')
+print(Ozoneplot)
+
+Ozoneplot2<-DallasCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_AQI_Ozone))+
+  labs(
+    x="Date",
+    y="Ozone")+
+  geom_point(size=0.5)+
+  ggtitle('Dallas County Ozone 2019-2023')
+print(Ozoneplot2)
+
+PMplot<-HarrisCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_AQI_PM))+
+  labs(
+    x="Date",
+    y="PM25")+
+  geom_point(size=0.5)+
+  ggtitle('Harris County PM 2019-2023')
+print(PMplot)
+
+PMplot2<-DallasCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_AQI_PM))+
+  labs(
+    x="Date",
+    y="PM25")+
+  geom_point(size=0.5)+
+  ggtitle('Dallas County PM 2019-2023')
+print(PMplot2)
+
 
 ```

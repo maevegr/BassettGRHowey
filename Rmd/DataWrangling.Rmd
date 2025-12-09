@@ -251,3 +251,22 @@ TXEmissions_Ozone <- left_join(TXOzone_CNTY, eGRID_PLNT_TX,
                               by = c("Date", "County")) %>% 
   na.omit()
 ```
+
+```{r Wrangling: Harris County AQI and Rain data}
+
+TXOzoneHarris <- TXOzone %>%
+  filter(County == 'Harris')%>%
+  group_by(Date) %>%
+  summarise(Avg_AQI_Ozone = mean(Daily.AQI.Value))
+
+HarrisCoRain <- read.csv(here("Data/HarrisCoRain.csv"))%>%
+  na.omit(PRCP)%>%
+  group_by(DATE) %>%
+  summarise(Avg_Rain = mean(PRCP))%>%
+  mutate(Date=mdy(DATE))%>%
+  select("Date","Avg_Rain")
+
+
+
+```
+
