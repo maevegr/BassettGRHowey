@@ -1,6 +1,8 @@
 ---
-output: html_document
-editor_options: 
+output:
+  pdf_document: default
+  html_document: default
+editor_options:
   chunk_output_type: console
 ---
 \newpage
@@ -15,7 +17,8 @@ editor_options:
 # Set your working directory
 
 # Load your packages
-library(tidyverse);library(lubridate);library(here);library(sf);library(ggnewscale)
+library(tidyverse);library(lubridate);library(here);library(sf);
+library(ggnewscale)
 here()
 
 # Set your ggplot theme
@@ -58,7 +61,7 @@ eGRID19_PLNT <- read.csv(here("Data/egrid2019_data_PLNT.csv"),
 This report examines how local conditions affect local air quality, focusing on power plant emissions and precipitation levels. While pollution is often studied at a global level, examining its contribution to climate change and warming temperatures, its affect communities local to the emissions source is studied less frequently. This analysis considers other factors (precipitation) that may influence air quality and explores how air quality levels vary day-to-day. Texas was chosen as the study area for this analysis because of its number of power plants and counties. This report investigates the following three questions:
 
 1) Is there a correlation between county level emission levels from power plants and county air quality in Texas?
-2) Is there a trend in air quality values over time in Harris county, Texas?
+2) Is there a trend in air quality values and emissions over time in Harris county, Texas?
 3) Is there a relationship between precipitation and air quality in Harris county Texas?
 
 \newpage
@@ -67,16 +70,17 @@ This report examines how local conditions affect local air quality, focusing on 
 
 This report analyzes three sources of data: EPA Air Quality, Emissions & Generation Resource Integrated Database (eGRID), and *INSERT PRECIPITATION DATA*
 
+EPA Air Quality Data is collected at local monitors across the United States. It can be downloaded by pollutant type, region, and year. This report uses data for Texas between 2018 and 2023 for PM2.5 and Ozone. PM2.5 and Ozone are two criteria pollutants that can cause respiratory issues, especially for people with pre-existing health conditions, children, and seniors. The AQI based on PM2.5 and Ozone are recorded separately and range on a scale from 0-500, with higher values being more dangerous. Values 0-50 indicate "Good" AQ, 50 - 100 "Moderate", and increasingly poor from there. For more information about Air Quality Index and criteria pollutants, visit https://www.epa.gov/outdoor-air-quality-data/air-data-basic-information
+
 eGRID data is released annually and contains information for all power plants across the United States. It contains information about generation, age of the plant, fuel type, and emissions, including CO2 Equivalent emissions. This report uses the eGRID 2018 - 2023 annual reports and focuses only on Texas power plants. 
 
 *INSERT SOMETHING ABOUT PRECIPITATION DATA*
 
-EPA Air Quality Data is collected at local monitors across the United States. It can be downloaded by pollutant type, region, and year. This report uses data for Texas between 2018 and 2023 for PM2.5 and Ozone. PM2.5 and Ozone are two criteria pollutants that can cause respiratory issues, especially for people with pre-existing health conditions, children, and seniors. The AQI based on PM2.5 and Ozone are recorded separately and range on a scale from 0-500, with higher values being more dangerous. Values 0-50 indicate "Good" AQ, 50 - 100 "Moderate", and increasingly poor from there. For more information about Air Quality Index and criteria pollutants, visit https://www.epa.gov/outdoor-air-quality-data/air-data-basic-information
-
 \newpage
 
 # Exploratory Analysis 
-```{r}
+This report analyzes air quality data from 2019 - 2023 in Texas for both PM2.5 and Ozone. For each year, there are separate PM2.5 and Ozone files, but the structure is the same for all. Below is the structure of the 2019 Texas PM2.5 data.
+```{r Air Quality Data, echo=FALSE}
 str(TXPM2519)
 ```
 
@@ -86,8 +90,9 @@ str(TXPM2519)
 # Analysis
 
 ## Question 1: Is there a correlation between county level emission levels from power plants and county air quality?
+The eGRID data for each year was adjusted to ensure all numeric columns were imported as numeric for quantitative analysis. The year, state, plant name, county, latitude, longitude, and emissions data for all types of recorded emissions (including CO2 equivalent emissions) were selected to a new data frame. These data frames were combined and further manipulated to have a data frame with the total county emissions for each year.
 
-```{r Q1 eGRID Data Wrangling, echo=FALSE}
+```{r Q1 eGRID Data Wrangling, include=FALSE}
 #Read in each year of eGRID data selecting relevant columns and adjusting 
 #data types for each column. 
 eGRID23_PLNT_E <- eGRID23_PLNT %>% 
@@ -222,8 +227,8 @@ eGRID19_PLNT_E <- eGRID19_PLNT %>%
          "Plant.annual.Hg.emissions..lbs.")
 
 #Combine all eGRID years into one dataframe
-eGRID_PLNT_E <- rbind (eGRID23_PLNT_E, eGRID22_PLNT_E, eGRID21_PLNT_E, eGRID20_PLNT_E,
-                     eGRID19_PLNT_E)
+eGRID_PLNT_E <- rbind (eGRID23_PLNT_E, eGRID22_PLNT_E, eGRID21_PLNT_E, 
+                       eGRID20_PLNT_E,eGRID19_PLNT_E)
 
 #Texas plants with reported CO2 emissions
 eGRID_TX_indiv_CO2eq <- eGRID_PLNT_E %>% 
@@ -253,35 +258,47 @@ eGRID_PLNT_TX_E <- eGRID_TX_indiv_CO2eq %>%
   rename(County = Plant.county.name)
 ```
 
-```{r Q1 AQ Data Wrangling, echo=FALSE}
+Relevant columns were selected for each of the PM2.5 and Ozone data frames, including date AQI, site name, AQ type (PM2.5 or Ozone), State, County, longitude and latitude. This was combined into two dataframes, one for PM2.5 and one for Ozone and further manipulated to have data frames with the average air quality value for each county each year. 
+
+```{r Q1 AQ Data Wrangling, include=FALSE}
 #Texas PM2.5 for each year. Formatted into yearly rather than daily data
 TXPM2523_E <- TXPM2523 %>% 
   mutate(Date=mdy(Date)) %>% 
-  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", 
+         "AQS.Parameter.Description", "State", "County", 
+         "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
 TXPM2522_E <- TXPM2522 %>% 
   mutate(Date=mdy(Date)) %>% 
-  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", 
+         "AQS.Parameter.Description", "State", "County", 
+         "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
 TXPM2521_E <- TXPM2521 %>% 
   mutate(Date=mdy(Date)) %>% 
-  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", 
+         "AQS.Parameter.Description", "State", "County", 
+         "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
 TXPM2520_E <- TXPM2520 %>% 
   mutate(Date=mdy(Date)) %>% 
-  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", 
+         "AQS.Parameter.Description", "State", "County", 
+         "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
 TXPM2519_E <- TXPM2519 %>% 
   mutate(Date=mdy(Date)) %>% 
-  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name",
+         "AQS.Parameter.Description", "State", "County", 
+         "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
@@ -294,42 +311,54 @@ TXPM25_CNTY <- TXPM25 %>%
 #Texas Ozone for each year. Formatted into yearly rather than daily data
 TXOzone23_E <- TXOzone23 %>% 
   mutate(Date=mdy(Date)) %>% 
-  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name",
+         "AQS.Parameter.Description", "State", "County", "Site.Latitude", 
+         "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
 TXOzone22_E <- TXOzone22 %>% 
   mutate(Date=mdy(Date)) %>% 
-  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", 
+         "AQS.Parameter.Description", "State", "County", 
+         "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
 TXOzone21_E <- TXOzone21 %>% 
   mutate(Date=mdy(Date)) %>% 
-  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", 
+         "AQS.Parameter.Description", "State", "County", "Site.Latitude", 
+         "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
 TXOzone20_E <- TXOzone20 %>% 
   mutate(Date=mdy(Date)) %>% 
-  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", 
+         "AQS.Parameter.Description", "State", "County", 
+         "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
 TXOzone19_E <- TXOzone19 %>% 
   mutate(Date=mdy(Date)) %>% 
-  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", 
+         "AQS.Parameter.Description", "State", "County", 
+         "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
 #Average annual Ozone in Texas by County
-TXOzone <- rbind(TXOzone19_E, TXOzone20_E, TXOzone21_E, TXOzone22_E, TXOzone23_E)
+TXOzone <- rbind(TXOzone19_E, TXOzone20_E, TXOzone21_E, TXOzone22_E, 
+                 TXOzone23_E)
 TXOzone_CNTY <- TXOzone %>% 
   group_by(Date, County) %>% 
   summarize(Avg_AQI_Ozone = mean(Daily.AQI.Value))
 ```
 
-```{r}
+The data frames were joined to have a data frame with, for each year and each county, total emissions and average AQI.
+```{r include=FALSE}
 #Annual average AQI (ozone and PM2.5) and total emissions per county
 TXEmissions_PM25 <- left_join(TXPM25_CNTY, eGRID_PLNT_TX_E, 
                               by = c("Date", "County")) %>% 
@@ -343,7 +372,7 @@ TXEmissions_Ozone <- left_join(TXOzone_CNTY, eGRID_PLNT_TX_E,
 ```
 
 
-```{r Q1 Spatial Data Wrangling, echo=FALSE}
+```{r Q1 Spatial Data Wrangling, include=FALSE}
 #Map of Texas counties
 Texas_Counties <- st_read(here('Data/cb_2018_us_county_20m.shp')) %>% 
   filter(STATEFP == 48)
@@ -378,82 +407,110 @@ PM25_Locations <- st_as_sf(TXPM25_locations,
 
 ```
 
-###How often is emissions data reported?
-```{r Q1 Map1, echo=FALSE}
+### How often is emissions data reported?
+
+The following map displays all the plants referenced in at least one of the eGRID reports between 2019 and 2023. Not all plants listed in eGRID report CO2 equivalence. The plants that reported at some point in the 5 years are in blue. Plants that are listed in a least one of the eGRID reports but never report CO2 emissions (or have zero emissions) are in black.
+
+```{r Q1 Map1, echo=FALSE, warning=FALSE, f.align = "left", fig.cap="Listed and Emissions Reporting Texas Power Plants"}
 #Map of reporting and not reporting Texas plants
 ggplot()+
   geom_sf(data = Texas_Counties)+
-  geom_sf(data = ALLPlant_Locations, aes(color = "All Reporting Plants"),size = 0.5)+  
-  scale_color_manual(name = "", values = c("All Reporting Plants" = "Black"))+
+  geom_sf(data = ALLPlant_Locations, 
+          aes(color = "Non-Emissions Reporting Plants"),
+          size = 0.5)+  
+  scale_color_manual(name = "", 
+                     values = c("Non-Emissions Reporting Plants" = "Black"))+
   new_scale_color()+
-  geom_sf(data = Plant_Locations, aes(color = "Emissions Reporting Plants"), size = 0.5)+
-  scale_color_manual(name = "", values = c("Emissions Reporting Plants" = "Blue"))+
+  geom_sf(data = Plant_Locations, aes(color = "Emissions Reporting Plants"), 
+          size = 0.5)+
+  scale_color_manual(name = "", 
+                     values = c("Emissions Reporting Plants" = "Blue"))+
   ggtitle("Listed and Emissions Reporting Texas Power Plants", 
           subtitle="2018 - 2023 eGRID Reports")
 
 ```
 
-###How are air quality stations spatially located compared to emissions reporting power plants?
-```{r Q1 Map2, echo=FALSE}
+### How are air quality stations spatially located compared to emissions reporting power plants?
+The following map shows how plants and EPA air quality monitors are spatially related. Not all counties have both an air quality monitor and at least one CO2 equivalence reporting plant. Only counties reporting both at some point between 2019 and 2023 are included in the statistical analysis below.
+
+```{r Q1 Map2, echo=FALSE, warning=FALSE, fig.cap = "Air Quality Monitors & Annual Emissions from Power Plants and in Texas"}
 #Map of reporting Texas plants and ozone/PM2.5 monitors
 ggplot() +
   geom_sf(data = Texas_Counties)+
-  geom_sf(data = Plant_Locations, color = "blue",shape = 21,fill=NA,stroke=0.2, aes(color = "Reporting Plants", size=AVG.CO2))+
+  geom_sf(data = Plant_Locations, color = "blue",shape = 21,fill=NA,stroke=0.2, 
+          aes(color = "Reporting Plants", size=AVG.CO2))+
   geom_sf(data = Ozone_Locations,size=0.5, aes(color = "Ozone Monitor"))+
   scale_color_manual(name = "", values = c("Ozone Monitor" = "Red"))+
   new_scale_color()+
   geom_sf(data = PM25_Locations, size=0.5, aes(color = "PM2.5 Monitor"))+ 
-  scale_color_manual(name = "Air Quality Monitor Type", values = c("PM2.5 Monitor" = "Green"))+
+  scale_color_manual(name = "Air Quality Monitor Type", 
+                     values = c("PM2.5 Monitor" = "Green"))+
   new_scale_color()+
   labs(size="Average Annual CO2 Equivalent (tons)")+
-  ggtitle("Air Quality Monitors & Annual Emissions from Power Plants and in Texas",
+  ggtitle(
+    "Air Quality Monitors & Annual Emissions from Power Plants and in Texas",
            subtitle="2018 - 2023")
 ```
 
 
-###Are annual county emissions correlated with annual county air quality?
-```{r Q1 Emissions vs Ozone, echo=FALSE}
+### Are annual county emissions correlated with annual county air quality?
+The following graphs and tables show the relationship between total annual county emissions and average annual county air quality. A linear regression was run on the data to determine if the relationship has a significant correlation. Harris County data points are highlighted.
+
+```{r Q1 Emissions vs Ozone, echo=FALSE, warning=FALSE, fig.cap = "Average Daily Ozone AQI Value vs. Annual CO2 Equivalent Emissions"}
 #Graph of emissions vs ozone
 Emissions_O3 <- TXEmissions_Ozone %>% 
   ggplot(aes(x = CO2_Equiv, y = Avg_AQI_Ozone))+
   geom_point(aes(color = Date))+
-  geom_text(data = TXEmissions_Ozone %>% 
-              filter(County == "Harris"),
-              aes(label = County), vjust = -1)+
+  #geom_text(data = TXEmissions_Ozone %>% 
+   #           filter(County == "Harris"),
+    #          aes(label = County), vjust = -1)+
+  geom_rect(aes(xmin = 1.3e+07, xmax = 1.5e+07, ymin=32, ymax = 40), 
+            color = "black", fill = "NA")+
+  geom_text(x=1.4e+07,y=41,size = 4,aes(label = "Harris County"))+
   xlab("Annual CO2 Equivalent Emissions per County (tons)")+
   ylab("Average Daily Ozone AQI Value per County")+
   ggtitle("Average Daily Ozone AQI Value vs. Annual CO2 Equivalent Emissions", 
           subtitle = "Per County, Texas, 2019 - 2023")
 Emissions_O3
 
+```
+
+```{r Q1 Emissions vs Ozone LR, warning=FALSE, include=FALSE}
 #Linear regression of emissions vs ozone 
 O3byEmissionsRegression <- lm(
   TXEmissions_Ozone$Avg_AQI_Ozone ~ TXEmissions_Ozone$CO2_Equiv)
 summary(O3byEmissionsRegression)
-
 ```
 
 Table: Linear Regression of Emissions vs. Ozone Air Quality
 
 |Item | Value | 
 |-------:|:------|
-| P-value | 0.1853 |
-| R-squared | 0.0383 |
-| Degrees of Freedom |21 | 
+| P-value | 0.5239 |
+| R-squared | -0.0043 |
+| Degrees of Freedom |136 | 
 
-```{r Q1 Emissions vs PM2.5, echo=FALSE}
+```{r Q1 Emissions vs PM2.5, echo=FALSE, warning=FALSE, fig.cap = "Average Daily PM2.5 AQI Value vs. Annual CO2 Equivalent Emissions in Individual Counties"}
 #Graph of emissions vs PM2.5
 Emissions_PM25<-TXEmissions_PM25 %>% 
   ggplot(aes(x = CO2_Equiv, y = Avg_AQI_PM25))+
   geom_point(aes(color = Date))+
-  geom_text(data = TXEmissions_PM25 %>% 
-              filter(County == "Harris"),
-              aes(label = County), vjust = -1)+
+  #geom_text(data = TXEmissions_PM25 %>% 
+   #           filter(County == "Harris"),
+    #          aes(label = County), vjust = -1)+
+  geom_rect(aes(xmin = 1.3e+07, xmax = 1.5e+07, ymin=43, ymax = 51), 
+            color = "black", fill = "NA")+
+  geom_text(x=1.4e+07,y=42,size = 4,aes(label = "Harris County"))+
   xlab("Annual CO2 Equivalent Emissions per County (tons)")+
   ylab("Average Daily PM2.5 AQI Value per County")+
-  ggtitle("Average Daily PM2.5 AQI Value vs. Annual CO2 Equivalent Emissions in Individual Counties", subtitle = "Texas, 2019 - 2023")
+  ggtitle(
+    "Average Daily PM2.5 AQI Value vs. Annual CO2 Equivalent Emissions in Individual Counties", 
+    subtitle = "Texas, 2019 - 2023")
 Emissions_PM25
 
+```
+
+```{r Q1 Emissions vs PM2.5 LR, warning=FALSE, include=FALSE}
 #Linear regression of emissions vs PM2.5
 PM25byEmissionsRegression <- lm(
   TXEmissions_PM25$Avg_AQI_PM25 ~ TXEmissions_PM25$CO2_Equiv)
@@ -464,15 +521,15 @@ Table: Linear Regression of Emissions vs. PM2.5 Air Quality
 
 |Item | Value | 
 |-------:|:------|
-| P-value | 0.1441 |
-| R-squared | 0.0612 |
-| Degrees of Freedom |19 | 
+| P-value | 0.4074 |
+| R-squared | -0.0025 |
+| Degrees of Freedom |125 | 
 
 
 ## Question 2: 
 ```{r Wrangle eGRID data}
 eGRID23_PLNT <- eGRID23_PLNT %>% 
-  slice(-1) %>% 
+  #slice(-1) %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
   mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -501,7 +558,7 @@ eGRID23_PLNT <- eGRID23_PLNT %>%
          "Plant.annual.Hg.emissions..lbs.")  
 
 eGRID22_PLNT <- eGRID22_PLNT %>%
-  slice(-1) %>% 
+  #slice(-1) %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
   mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -530,7 +587,7 @@ eGRID22_PLNT <- eGRID22_PLNT %>%
          "Plant.annual.Hg.emissions..lbs.")
 
 eGRID21_PLNT <- eGRID21_PLNT %>%
-  slice(-1) %>% 
+  #slice(-1) %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
     mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
     mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -560,7 +617,7 @@ eGRID21_PLNT <- eGRID21_PLNT %>%
 
 
 eGRID20_PLNT <- eGRID20_PLNT %>% 
-  slice(-1) %>% 
+  #slice(-1) %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
   mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -589,7 +646,7 @@ eGRID20_PLNT <- eGRID20_PLNT %>%
          "Plant.annual.Hg.emissions..lbs.")
 
 eGRID19_PLNT <- eGRID19_PLNT %>% 
-  slice(-1) %>% 
+  #slice(-1) %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
   mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -822,7 +879,7 @@ CH4.plot
 
 # Summary and Conclusions
 
-The analysis of correlation between air quality and emissions at the county level per year did not result in significant results. There is not a significant correlation between annual county emission from power plants and average annual county AQI score from Ozone or PM2.5. Additionally, no county on average saw any poor or unsafe Air Quality Index levels. There are two potential factors influencing this lack of correlation. One is that air quality and emissions cannot be studied at localized scale. Likely emissions disperse out of the county it is in based on local weather patterns. Conducting analysis of local air quality based on power plant emissions might be more accurate if wind patterns were taken into consideration to estimate where emissions may be concentrating. Another reason there may not be a correlation is because there are not enough data points in this analysis to see a trend. All plants do not report emissions and there are not air quality stations in all counties. There were only 5 counties with a PM2.5 monitor and at least one emission reporting plant and only 5 counties with an Ozone monitor and at least oen emission reporting plant. To perform this analysis more accurately, data should be looked at country wide and there should be better standards for ensuring all active power plants report their emissions.
+The analysis of correlation between air quality and emissions at the county level per year did not result in significant results. There is not a significant correlation between annual county emission from power plants and average annual county AQI score from Ozone or PM2.5. Additionally, no county on average saw any poor or unsafe Air Quality Index levels. There are two potential factors influencing this lack of correlation. One is that air quality and emissions cannot be studied at localized scale. Likely emissions disperse out of the county it is in based on local weather patterns. Conducting analysis of local air quality based on power plant emissions might be more accurate if wind patterns were taken into consideration to estimate where emissions may be concentrating. Another reason there may not be a correlation is because there are not enough data points in this analysis to see a trend. All plants do not report emissions and there are not air quality stations in all counties. To perform this analysis more accurately, data should be looked at country wide and there should be better standards for ensuring all active power plants report their emissions.
 
 \newpage
 
