@@ -16,13 +16,42 @@ editor_options:
 library(tidyverse);library(lubridate);library(here);library(sf);library(ggnewscale)
 here()
 ```
+```{r}
+eGRID23_PLNT <- read.csv(here("Data/egrid2023_data_rev2_PLNT.csv"),
+                         na.strings = c("", " ", "0")) %>% slice(-1) 
+
+eGRID22_PLNT <- read.csv(here("Data/egrid2022_data_PLNT.csv"),
+                         na.strings = c("", " ", "0")) %>% slice(-1) 
+
+eGRID21_PLNT <- read.csv(here("Data/eGRID2021_data_PLNT.csv"),
+                         na.strings = c("", " ", "0")) %>% slice(-1) 
+
+eGRID20_PLNT <- read.csv(here("Data/eGRID2020_Data_v2_PLNT.csv"),
+                         na.strings = c("", " ", "0")) %>% slice(-1) 
+
+eGRID19_PLNT <- read.csv(here("Data/egrid2019_data_PLNT.csv"),
+                         na.strings = c("", " ", "0")) %>% slice(-1) 
+
+```
+
+
+```{r}
+TXPM2523 <- read.csv(here("Data/TXPM2523.csv"))
+TXPM2522 <- read.csv(here("Data/TXPM2522.csv"))
+TXPM2521 <- read.csv(here("Data/TXPM2521.csv"))
+TXPM2520 <- read.csv(here("Data/TXPM2520.csv"))
+TXPM2519 <- read.csv(here("Data/TXPM2519.csv"))
+TXOzone23 <- read.csv(here("Data/TXOzone23.csv"))
+TXOzone22 <- read.csv(here("Data/TXOzone22.csv"))
+TXOzone21 <- read.csv(here("Data/TXOzone21.csv"))
+TXOzone20 <- read.csv(here("Data/TXOzone20.csv"))
+TXOzone19 <- read.csv(here("Data/TXOzone19.csv"))
+```
 
 ```{r Data Import:eGRID}
 #Read in each year of eGRID data selecting relevant columns and adjusting 
 #data types for each column. 
-eGRID23_PLNT <- read.csv(here("Data/egrid2023_data_rev2_PLNT.csv"),
-                         na.strings = c("", " ", "0")) %>% 
-  slice(-1) %>% 
+eGRID23_PLNT <- eGRID23_PLNT %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
   mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -48,9 +77,7 @@ eGRID23_PLNT <- read.csv(here("Data/egrid2023_data_rev2_PLNT.csv"),
          "Plant.annual.CO2.equivalent.emissions..tons.", 
          "Plant.annual.Hg.emissions..lbs.")  
 
-eGRID22_PLNT <- read.csv(here("Data/egrid2022_data_PLNT.csv"),
-                         na.strings = c("", " ", "0")) %>%
-  slice(-1) %>% 
+eGRID22_PLNT <- eGRID22_PLNT %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
   mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -76,9 +103,7 @@ eGRID22_PLNT <- read.csv(here("Data/egrid2022_data_PLNT.csv"),
          "Plant.annual.CO2.equivalent.emissions..tons.", 
          "Plant.annual.Hg.emissions..lbs.")
 
-eGRID21_PLNT <- read.csv(here("Data/eGRID2021_data_PLNT.csv"), 
-                         na.strings = c("", " ", "0")) %>%
-  slice(-1) %>% 
+eGRID21_PLNT <- eGRID21_PLNT %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
     mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
     mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -105,9 +130,7 @@ eGRID21_PLNT <- read.csv(here("Data/eGRID2021_data_PLNT.csv"),
          "Plant.annual.Hg.emissions..lbs.")
 
 
-eGRID20_PLNT <- read.csv(here("Data/eGRID2020_Data_v2_PLNT.csv"),
-                         na.strings = c("", " ", "0")) %>% 
-  slice(-1) %>% 
+eGRID20_PLNT <- eGRID20_PLNT %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
   mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -133,8 +156,7 @@ eGRID20_PLNT <- read.csv(here("Data/eGRID2020_Data_v2_PLNT.csv"),
          "Plant.annual.CO2.equivalent.emissions..tons.", 
          "Plant.annual.Hg.emissions..lbs.")
 
-eGRID19_PLNT <- read.csv(here("Data/egrid2019_data_PLNT.csv"), na.strings = c("", " ", "0")) %>% 
-  slice(-1) %>% 
+eGRID19_PLNT <- eGRID19_PLNT %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
   mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -167,7 +189,7 @@ eGRID_PLNT <- rbind (eGRID23_PLNT, eGRID22_PLNT, eGRID21_PLNT, eGRID20_PLNT,
 #Texas plants with reported CO2 emissions
 eGRID_TX_indiv_CO2eq <- eGRID_PLNT %>% 
   filter(Plant.state.abbreviation == "TX") %>% 
-  select("Plant.name", "Plant.county.name", "Plant.latitude", "Plant.longitude","Plant.annual.CO2.equivalent.emissions..tons.") %>% 
+  select("Data.Year","Plant.name", "Plant.county.name", "Plant.latitude", "Plant.longitude","Plant.annual.CO2.equivalent.emissions..tons.") %>% 
   na.omit()
 
 #All Texas plants, location only
@@ -184,11 +206,10 @@ eGRID_TX_locations <- eGRID_TX_indiv_CO2eq %>%
   na.omit()
 
 #Total emissions per county per year in Texas
-eGRID_PLNT_TX <- eGRID_PLNT %>% 
-  group_by(Data.Year,Plant.state.abbreviation,Plant.county.name) %>% 
+eGRID_PLNT_TX <- eGRID_TX_indiv_CO2eq %>% 
+  group_by(Data.Year,Plant.county.name) %>% 
   summarize(CO2_Equiv = sum(Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
-  na.omit() %>% 
-  filter(Plant.state.abbreviation == "TX" ) %>% 
+  #filter(Plant.state.abbreviation == "TX" ) %>% 
   rename(Date = Data.Year) %>% 
   rename(County = Plant.county.name)
 ```
@@ -197,75 +218,75 @@ eGRID_PLNT_TX <- eGRID_PLNT %>%
 
 ```{r Data Import: Air Quality}
 #Texas PM2.5 for each year. Formatted into yearly rather than daily data
-TXPM2523 <- read.csv(here("Data/TXPM2523.csv")) %>% 
+TXPM2523_E <- TXPM2523 %>% 
   mutate(Date=mdy(Date)) %>% 
   select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
-TXPM2522 <- read.csv(here("Data/TXPM2522.csv")) %>% 
+TXPM2522_E <- TXPM2522 %>% 
   mutate(Date=mdy(Date)) %>% 
   select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
-TXPM2521 <- read.csv(here("Data/TXPM2521.csv")) %>% 
+TXPM2521_E <- TXPM2521 %>% 
   mutate(Date=mdy(Date)) %>% 
   select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
-TXPM2520 <- read.csv(here("Data/TXPM2520.csv")) %>% 
+TXPM2520_E <- TXPM2520 %>% 
   mutate(Date=mdy(Date)) %>% 
   select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
-TXPM2519 <- read.csv(here("Data/TXPM2519.csv")) %>% 
+TXPM2519_E <- TXPM2519 %>% 
   mutate(Date=mdy(Date)) %>% 
   select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
 #Average annual PM2.5 in Texas by County
-TXPM25 <- rbind(TXPM2519, TXPM2520, TXPM2521, TXPM2522, TXPM2523)
+TXPM25 <- rbind(TXPM2519_E, TXPM2520_E, TXPM2521_E, TXPM2522_E, TXPM2523_E)
 TXPM25_CNTY <- TXPM25 %>% 
   group_by(Date, County) %>% 
   summarize(Avg_AQI_PM25 = mean(Daily.AQI.Value))
 
 #Texas Ozone for each year. Formatted into yearly rather than daily data
-TXOzone23 <- read.csv(here("Data/TXOzone23.csv")) %>% 
+TXOzone23_E <- TXOzone23 %>% 
   mutate(Date=mdy(Date)) %>% 
   select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
-TXOzone22 <- read.csv(here("Data/TXOzone22.csv")) %>% 
+TXOzone22_E <- TXOzone22 %>% 
   mutate(Date=mdy(Date)) %>% 
   select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
-TXOzone21 <- read.csv(here("Data/TXOzone21.csv")) %>% 
+TXOzone21_E <- TXOzone21 %>% 
   mutate(Date=mdy(Date)) %>% 
   select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
-TXOzone20 <- read.csv(here("Data/TXOzone20.csv")) %>% 
+TXOzone20_E <- TXOzone20 %>% 
   mutate(Date=mdy(Date)) %>% 
   select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
-TXOzone19 <- read.csv(here("Data/TXOzone19.csv")) %>% 
+TXOzone19_E <- TXOzone19 %>% 
   mutate(Date=mdy(Date)) %>% 
   select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
 #Average annual Ozone in Texas by County
-TXOzone <- rbind(TXOzone19, TXOzone20, TXOzone21, TXOzone22, TXOzone23)
+TXOzone <- rbind(TXOzone19_E, TXOzone20_E, TXOzone21_E, TXOzone22_E, TXOzone23_E)
 TXOzone_CNTY <- TXOzone %>% 
   group_by(Date, County) %>% 
   summarize(Avg_AQI_Ozone = mean(Daily.AQI.Value))
@@ -339,17 +360,16 @@ ggplot()+
 #Map of reporting Texas plants and ozone/PM2.5 monitors
 ggplot() +
   geom_sf(data = Texas_Counties)+
-  geom_sf(data = Ozone_Locations,size=0.3, aes(color = "Ozone Monitor"))+
+  geom_sf(data = Plant_Locations, color = "blue",shape = 21,fill=NA,stroke=0.2, aes(color = "Reporting Plants", size=AVG.CO2))+
+  geom_sf(data = Ozone_Locations,size=0.5, aes(color = "Ozone Monitor"))+
   scale_color_manual(name = "", values = c("Ozone Monitor" = "Red"))+
   new_scale_color()+
-  geom_sf(data = PM25_Locations, size=0.3, aes(color = "PM2.5 Monitor"))+ 
-  scale_color_manual(name = "", values = c("PM2.5 Monitor" = "Green"))+
+  geom_sf(data = PM25_Locations, size=0.5, aes(color = "PM2.5 Monitor"))+ 
+  scale_color_manual(name = "Air Quality Monitor Type", values = c("PM2.5 Monitor" = "Green"))+
   new_scale_color()+
-  
   labs(size="Average Annual CO2 Equivalent (tons)")+
-  ggtitle("Reporting Emissions from Power Plants in Texas",
-           subtitle="2018 - 2023 eGRID Reports")
-  #theme(legend.position = "bottom")
+  ggtitle("Air Quality Monitors & Annual Emissions from Power Plants and in Texas",
+           subtitle="2018 - 2023")
 
 ```
 
@@ -361,6 +381,9 @@ ggplot() +
 Emissions_O3 <- TXEmissions_Ozone %>% 
   ggplot(aes(x = CO2_Equiv, y = Avg_AQI_Ozone))+
   geom_point(aes(color = Date))+
+  geom_text(data = TXEmissions_Ozone %>% 
+              filter(County == "Harrison"),
+              aes(label = County), vjust = -1)+
   xlab("Annual CO2 Equivalent Emissions per County (tons)")+
   ylab("Average Daily Ozone AQI Value per County")+
   ggtitle("Average Daily Ozone AQI Value vs. Annual CO2 Equivalent Emissions", 
@@ -372,20 +395,40 @@ O3byEmissionsRegression <- lm(
   TXEmissions_Ozone$Avg_AQI_Ozone ~ TXEmissions_Ozone$CO2_Equiv)
 summary(O3byEmissionsRegression)
 
+
+```
+
+Table: Linear Regression of Emissions vs. Ozone Air Quality
+
+|Item | Value | 
+|-------:|:------|
+| P-value | 0.1853 |
+| R-squared | 0.0383 |
+| Degrees of Freedom |21 | 
+
+```{r}
 #Graph of emissions vs PM2.5
 Emissions_PM25<-TXEmissions_PM25 %>% 
   ggplot(aes(x = CO2_Equiv, y = Avg_AQI_PM25))+
   geom_point(aes(color = Date))+
+  geom_text(data = TXEmissions_PM25 %>% 
+              filter(County == "Harrison"),
+              aes(label = County), vjust = -1)+
   xlab("Annual CO2 Equivalent Emissions per County (tons)")+
   ylab("Average Daily PM2.5 AQI Value per County")+
-  ggtitle("Average Daily PM2.5 AQI Value vs. Annual CO2 Equivalent Emissions from Reporting Power Plants", subtitle = "Texas, 2019 - 2023")
+  ggtitle("Average Daily PM2.5 AQI Value vs. Annual CO2 Equivalent Emissions in Individual Counties", subtitle = "Texas, 2019 - 2023")
 Emissions_PM25
 
 #Linear regression of emissions vs PM2.5
 PM25byEmissionsRegression <- lm(
   TXEmissions_PM25$Avg_AQI_PM25 ~ TXEmissions_PM25$CO2_Equiv)
 summary(PM25byEmissionsRegression)
-
-
 ```
 
+Table: Linear Regression of Emissions vs. PM2.5 Air Quality
+
+|Item | Value | 
+|-------:|:------|
+| P-value | 0.1441 |
+| R-squared | 0.0612 |
+| Degrees of Freedom |19 | 
