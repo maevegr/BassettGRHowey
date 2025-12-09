@@ -62,7 +62,7 @@ eGRID19_PLNT <- read.csv(here("Data/egrid2019_data_PLNT.csv"),
 
 
 # Rationale and Research Questions
-This report examines how local conditions affect local air quality, focusing on power plant emissions and precipitation levels. While pollution is often studied at a global level, examining its contribution to climate change and warming temperatures, its affect communities local to the emissions source is studied less frequently. This analysis considers other factors (precipitation) that may influence air quality and explores how air quality levels vary day-to-day. Texas was chosen as the study area for this analysis because of its number of power plants and counties. This report investigates the following three questions:
+This report examines how local conditions affect local air quality, focusing on power plant emissions and precipitation levels. While pollution is often studied at a global level, examining its contribution to climate change and warming temperatures, its affect on communities local to the emissions source is studied less frequently. This analysis considers other factors (precipitation) that may influence air quality and explores how air quality levels vary day-to-day. Texas was chosen as the study area for this analysis because of its number of power plants and counties. This report investigates the following three questions:
 
 1) Is there a correlation between county level emission levels from power plants and county air quality in Texas?
 2) Is there a trend in air quality values and emissions over time in Harris county, Texas?
@@ -531,7 +531,7 @@ Table: Linear Regression of Emissions vs. PM2.5 Air Quality
 
 
 ## Question 2: 
-```{r Wrangle eGRID data}
+```{r Wrangle eGRID data, eval=TRUE, echo=FALSE}
 eGRID23_PLNT <- eGRID23_PLNT %>% 
   #slice(-1) %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
@@ -699,7 +699,7 @@ eGRID_PLNT_TX <- filter(eGRID_PLNT_US,Plant.state.abbreviation == "TX" ) %>%
   rename(County = Plant.county.name) 
 ```
 
-```{r Wrangle Air Quality: PM2.5}
+```{r Wrangle Air Quality: PM2.5, eval=TRUE, echo=FALSE}
 #Texas PM2.5 for each year. Formatted into yearly rather than daily data
 TXPM2523 <- TXPM2523 %>% 
   mutate(Date=mdy(Date)) %>% 
@@ -749,7 +749,9 @@ TXPM25_Harris <- TXPM25 %>%
   filter(County == "Harris")
 
 ```
-```{r Data Import: Air Quality: Ozone}
+
+
+```{r Data Import: Air Quality: Ozone, , eval=TRUE, echo=FALSE}
 #Texas Ozone for each year. Formatted into yearly rather than daily data
 TXOzone23 <- TXOzone23 %>% 
   mutate(Date=mdy(Date)) %>% 
@@ -799,7 +801,7 @@ TXOzone_Harris <- TXOzone %>%
   filter(County == "Harris")
 ```
 
-```{r Wrangling: Emissions and AQI}
+```{r Wrangling: Emissions and AQI, , eval=TRUE, echo=FALSE}
 #Annual average AQI (PM2.5/Ozone) and 
 #emissions (CO2 equiv/CH4) in Harris county, TX
 TX_emiss_PM25_Harris <- inner_join(TXPM25_Harris, eGRID_PLNT_TX,
@@ -809,7 +811,7 @@ TX_emiss_O3_Harris <- inner_join(TXOzone_Harris, eGRID_PLNT_TX,
                                  by = c("Date", "County"))
 ```
 
-```{r Q2 plots}
+```{r Q2 plots, eval=TRUE, echo=FALSE}
 #Graph of PM2.5 AQI over time
 PM25.plot <- TX_emiss_PM25_Harris %>% 
   ggplot(
