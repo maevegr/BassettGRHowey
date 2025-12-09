@@ -87,10 +87,10 @@ str(TXPM2519)
 
 ## Question 1: Is there a correlation between county level emission levels from power plants and county air quality?
 
-```{r}
+```{r Q1 eGRID Data Wrangling, echo=FALSE}
 #Read in each year of eGRID data selecting relevant columns and adjusting 
 #data types for each column. 
-eGRID23_PLNT <- eGRID23_PLNT %>% 
+eGRID23_PLNT_E <- eGRID23_PLNT %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
   mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -116,7 +116,7 @@ eGRID23_PLNT <- eGRID23_PLNT %>%
          "Plant.annual.CO2.equivalent.emissions..tons.", 
          "Plant.annual.Hg.emissions..lbs.")  
 
-eGRID22_PLNT <- eGRID22_PLNT %>% 
+eGRID22_PLNT_E <- eGRID22_PLNT %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
   mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -142,7 +142,7 @@ eGRID22_PLNT <- eGRID22_PLNT %>%
          "Plant.annual.CO2.equivalent.emissions..tons.", 
          "Plant.annual.Hg.emissions..lbs.")
 
-eGRID21_PLNT <- eGRID21_PLNT %>% 
+eGRID21_PLNT_E <- eGRID21_PLNT %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
     mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
     mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -169,7 +169,7 @@ eGRID21_PLNT <- eGRID21_PLNT %>%
          "Plant.annual.Hg.emissions..lbs.")
 
 
-eGRID20_PLNT <- eGRID20_PLNT %>% 
+eGRID20_PLNT_E <- eGRID20_PLNT %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
   mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -195,7 +195,7 @@ eGRID20_PLNT <- eGRID20_PLNT %>%
          "Plant.annual.CO2.equivalent.emissions..tons.", 
          "Plant.annual.Hg.emissions..lbs.")
 
-eGRID19_PLNT <- eGRID19_PLNT %>% 
+eGRID19_PLNT_E <- eGRID19_PLNT %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
   mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
   mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
@@ -222,17 +222,17 @@ eGRID19_PLNT <- eGRID19_PLNT %>%
          "Plant.annual.Hg.emissions..lbs.")
 
 #Combine all eGRID years into one dataframe
-eGRID_PLNT <- rbind (eGRID23_PLNT, eGRID22_PLNT, eGRID21_PLNT, eGRID20_PLNT,
-                     eGRID19_PLNT)
+eGRID_PLNT_E <- rbind (eGRID23_PLNT_E, eGRID22_PLNT_E, eGRID21_PLNT_E, eGRID20_PLNT_E,
+                     eGRID19_PLNT_E)
 
 #Texas plants with reported CO2 emissions
-eGRID_TX_indiv_CO2eq <- eGRID_PLNT %>% 
+eGRID_TX_indiv_CO2eq <- eGRID_PLNT_E %>% 
   filter(Plant.state.abbreviation == "TX") %>% 
   select("Plant.name", "Plant.county.name", "Plant.latitude", "Plant.longitude","Plant.annual.CO2.equivalent.emissions..tons.") %>% 
   na.omit()
 
 #All Texas plants, location only
-eGRID_TX_indiv_location_only <- eGRID_PLNT %>% 
+eGRID_TX_indiv_location_only <- eGRID_PLNT_E %>% 
   filter(Plant.state.abbreviation == "TX") %>% 
   group_by(Plant.latitude, Plant.longitude) %>% 
   select("Plant.latitude", "Plant.longitude") %>% 
@@ -245,7 +245,7 @@ eGRID_TX_locations <- eGRID_TX_indiv_CO2eq %>%
   na.omit()
 
 #Total emissions per county per year in Texas
-eGRID_PLNT_TX <- eGRID_PLNT %>% 
+eGRID_PLNT_TX_E <- eGRID_PLNT_E %>% 
   group_by(Data.Year,Plant.state.abbreviation,Plant.county.name) %>% 
   summarize(CO2_Equiv = sum(Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
   na.omit() %>% 
@@ -254,7 +254,7 @@ eGRID_PLNT_TX <- eGRID_PLNT %>%
   rename(County = Plant.county.name)
 ```
 
-```{r}
+```{r Q1 AQ Data Wrangling, echo=FALSE}
 #Texas PM2.5 for each year. Formatted into yearly rather than daily data
 TXPM2523_E <- TXPM2523 %>% 
   mutate(Date=mdy(Date)) %>% 
@@ -332,17 +332,17 @@ TXOzone_CNTY <- TXOzone %>%
 
 ```{r}
 #Annual average AQI (ozone and PM2.5) and total emissions per county
-TXEmissions_PM25 <- left_join(TXPM25_CNTY, eGRID_PLNT_TX, 
+TXEmissions_PM25 <- left_join(TXPM25_CNTY, eGRID_PLNT_TX_E, 
                               by = c("Date", "County")) %>% 
   na.omit()
 
-TXEmissions_Ozone <- left_join(TXOzone_CNTY, eGRID_PLNT_TX, 
+TXEmissions_Ozone <- left_join(TXOzone_CNTY, eGRID_PLNT_TX_E, 
                               by = c("Date", "County")) %>% 
   na.omit()
 ```
 
 
-```{r}
+```{r Q1 Spatial Data Wrangling, echo=FALSE}
 #Map of Texas counties
 Texas_Counties <- st_read(here('Data/cb_2018_us_county_20m.shp')) %>% 
   filter(STATEFP == 48)
@@ -377,7 +377,8 @@ PM25_Locations <- st_as_sf(TXPM25_locations,
 
 ```
 
-```{r}
+###How often is emissions data reported?
+```{r Q1 Map1, echo=FALSE}
 #Map of reporting and not reporting Texas plants
 ggplot()+
   geom_sf(data = Texas_Counties)+
@@ -388,8 +389,11 @@ ggplot()+
   scale_color_manual(name = "", values = c("Emissions Reporting Plants" = "Blue"))+
   ggtitle("Listed and Emissions Reporting Texas Power Plants", 
           subtitle="2018 - 2023 eGRID Reports")
-  
 
+```
+
+###How are air quality stations spatially located compared to emissions reporting power plants?
+```{r Q1 Map2, echo=FALSE}
 #Map of reporting Texas plants and ozone/PM2.5 monitors
 ggplot() +
   geom_sf(data = Texas_Counties)+
@@ -403,10 +407,11 @@ ggplot() +
   labs(size="Average Annual CO2 Equivalent (tons)")+
   ggtitle("Air Quality Monitors & Annual Emissions from Power Plants and in Texas",
            subtitle="2018 - 2023")
-
 ```
 
-```{r}
+
+###Are annual county emissions correlated with annual county air quality?
+```{r Q1 Emissions vs Ozone, echo=FALSE}
 #Graph of emissions vs ozone
 Emissions_O3 <- TXEmissions_Ozone %>% 
   ggplot(aes(x = CO2_Equiv, y = Avg_AQI_Ozone))+
@@ -424,6 +429,7 @@ Emissions_O3
 O3byEmissionsRegression <- lm(
   TXEmissions_Ozone$Avg_AQI_Ozone ~ TXEmissions_Ozone$CO2_Equiv)
 summary(O3byEmissionsRegression)
+
 ```
 
 Table: Linear Regression of Emissions vs. Ozone Air Quality
@@ -434,7 +440,7 @@ Table: Linear Regression of Emissions vs. Ozone Air Quality
 | R-squared | 0.0383 |
 | Degrees of Freedom |21 | 
 
-```{r}
+```{r Q1 Emissions vs PM2.5, echo=FALSE}
 #Graph of emissions vs PM2.5
 Emissions_PM25<-TXEmissions_PM25 %>% 
   ggplot(aes(x = CO2_Equiv, y = Avg_AQI_PM25))+
@@ -461,19 +467,9 @@ Table: Linear Regression of Emissions vs. PM2.5 Air Quality
 | R-squared | 0.0612 |
 | Degrees of Freedom |19 | 
 
-###How often is emissions data reported?
-
-Insert map of reporting vs not reporting plants
-
-###How are air quality stations spatially located compared to emissions reporting power plants?
-Insert map of plants and air quality stations
-
-###Are annual county emissions correlated with annual county air quality?
-Insert charts of AQ vs O3 and AQ vs PM25
-Statistical correlation test
-
 
 ## Question 2: 
+
 
 ## Question 3: 
 
