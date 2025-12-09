@@ -38,6 +38,10 @@ TXOzone20 <- read.csv(here("Data/TXOzone20.csv"))
 TXOzone19 <- read.csv(here("Data/TXOzone19.csv"))
 
 #eGRID
+
+#Any data that was blank (""), a space (" "), or 0 was converted to NA for consistency and to ensure as.numeric worked properly
+#First row is sliced because it is the short form of the column name
+
 eGRID23_PLNT <- read.csv(here("Data/egrid2023_data_rev2_PLNT.csv"),
                          na.strings = c("", " ", "0")) %>% slice(-1) 
 
