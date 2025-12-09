@@ -150,59 +150,7 @@ summary(HarrisDallasPM.anova)
 
 
 ```{r}
-HarrisDallas <- rbind(HarrisCoRain_AQ, DallasCoRain_AQ)
-
-
-mytheme <- theme_minimal(base_size = 12) +
-  theme(axis.text = element_text(color = "darkblue"), 
-        legend.position = "top",
-        panel.background = element_rect(fill="lightblue"))
-theme_set(mytheme)
-
-Rain<-HarrisDallas%>%
-  ggplot(aes(
-    x=Date, 
-    y=Avg_Rain, 
-    color=County))+
-  labs(
-    x="Date",
-    y="Avg Rainfall (in)")+
-  geom_boxplot()+
-  mytheme
-
-print(Rain)
-
-Nitrogen<-PeterPaul%>%
-  ggplot(aes(
-    x=factor(month,levels=1:12,labels=month.abb),
-    y=tn_ug, 
-    color=lakename,
-    ))+
-  scale_x_discrete(drop=FALSE)+
-  labs(
-    x="Month",
-    y="N (mg/L)")+
-  geom_boxplot()+
-#  mytheme+
-   theme(legend.position="none")
-
-Phosphorus<-PeterPaul%>%
-  ggplot(aes(
-    x=factor(month,levels=1:12,labels=month.abb), 
-    y=tp_ug, 
-    color=lakename,
-    ))+
-  scale_x_discrete(drop=FALSE)+
-  labs(
-    x="Month",
-    y="P (mg/L)")+
-  geom_boxplot()+
-#  mytheme+
-  theme(legend.position = "none")+
-  theme(axis.title.x = element_blank())
-#combining plots into 1 column, aligned vertically
-plot_grid(Temp,Phosphorus,Nitrogen,ncol=1,align="v")
-
+#could do some plots
+#HarrisDallas <- rbind(HarrisCoRain_AQ, DallasCoRain_AQ)
 
 ```
-
