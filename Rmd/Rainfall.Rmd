@@ -1,0 +1,208 @@
+```{r setup, include=FALSE}
+library(tidyverse);library(lubridate);library(here);library(cowplot);library(dplyr);library(ggplot2)
+here()
+```
+
+```{r Data Import: Air Quality}
+#TX only PM2.5
+TXPM2523 <- read.csv(here("Data/TXPM2523.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXPM2522 <- read.csv(here("Data/TXPM2522.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXPM2521 <- read.csv(here("Data/TXPM2521.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXPM2520 <- read.csv(here("Data/TXPM2520.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXPM2519 <- read.csv(here("Data/TXPM2519.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+#All Texas PM2.5 2018 - 2023 by County
+TXPM25 <- rbind(TXPM2519, TXPM2520, TXPM2521, TXPM2522, TXPM2523)
+TXPM25_CNTY <- TXPM25 %>% 
+  group_by(Date, County) %>% 
+  summarize(Avg_AQI_PM25 = mean(Daily.AQI.Value))
+
+#TX only Ozone
+TXOzone23 <- read.csv(here("Data/TXOzone23.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXOzone22 <- read.csv(here("Data/TXOzone22.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXOzone21 <- read.csv(here("Data/TXOzone21.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXOzone20 <- read.csv(here("Data/TXOzone20.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXOzone19 <- read.csv(here("Data/TXOzone19.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+#All Texas Ozone 2018 - 2023 by County
+TXOzone <- rbind(TXOzone19, TXOzone20, TXOzone21, TXOzone22, TXOzone23)
+TXOzone_CNTY <- TXOzone %>% 
+  group_by(Date, County) %>% 
+  summarize(Avg_AQI_Ozone = mean(Daily.AQI.Value))
+```
+
+
+```{r}
+TXOzoneHarris <- TXOzone %>%
+  filter(County == 'Harris')%>%
+  group_by(Date) %>%
+  summarise(Avg_AQI_Ozone = mean(Daily.AQI.Value),County='Harris')
+
+TXPM25Harris <- TXPM25 %>%
+  filter(County == 'Harris')%>%
+  group_by(Date) %>%
+  summarise(Avg_AQI_PM = mean(Daily.AQI.Value),County='Harris')
+
+HarrisCoRain <- read.csv(here("Data/HarrisCoRain.csv"))%>%
+  na.omit(PRCP)%>%
+  group_by(DATE) %>%
+  summarise(Avg_Rain = mean(PRCP))%>%
+  mutate(Date=mdy(DATE))%>%
+  select("Date","Avg_Rain")
+
+HarrisCoRain_AQ1 <- left_join(TXOzoneHarris, HarrisCoRain)  
+                              by = c("Date")
+
+HarrisCoRain_AQ <- left_join(HarrisCoRain_AQ1, TXPM25Harris)  
+                              by = c("Date")
+
+HarrisRainOzone.regression <- lm(
+  data = HarrisCoRain_AQ,
+  Avg_Rain ~ Avg_AQI_Ozone)
+summary(HarrisRainOzone.regression)
+
+HarrisRainPM.regression <- lm(
+  data = HarrisCoRain_AQ,
+  Avg_Rain ~ Avg_AQI_PM)
+summary(HarrisRainPM.regression)
+                                                           
+```
+
+```{r}
+
+TXOzoneDallas <- TXOzone %>%
+  filter(County == 'Dallas')%>%
+  group_by(Date) %>%
+  summarise(Avg_AQI_Ozone = mean(Daily.AQI.Value),County='Dallas')
+
+TXPM25Dallas <- TXPM25 %>%
+  filter(County == 'Dallas')%>%
+  group_by(Date) %>%
+  summarise(Avg_AQI_PM = mean(Daily.AQI.Value),County='Dallas')
+
+DallasCoRain <- read.csv(here("Data/DallasCoRain.csv"))%>%
+  na.omit(PRCP)%>%
+  group_by(DATE) %>%
+  summarise(Avg_Rain = mean(PRCP))%>%
+  mutate(Date=ymd(DATE))%>%
+  select("Date","Avg_Rain")
+
+DallasCoRain_AQ1 <- left_join(TXOzoneDallas, DallasCoRain)  
+                              by = c("Date")
+
+DallasCoRain_AQ <- left_join(DallasCoRain_AQ1, TXPM25Dallas)  
+                              by = c("Date")
+
+DallasRainOzone.regression <- lm(
+  data = DallasCoRain_AQ,
+  Avg_Rain ~ Avg_AQI_Ozone)
+summary(DallasRainOzone.regression)
+
+DallasRainPM.regression <- lm(
+  data = DallasCoRain_AQ,
+  Avg_Rain ~ Avg_AQI_PM)
+summary(DallasRainPM.regression)
+
+```
+
+```{r}
+
+HarrisDallas <- rbind(HarrisCoRain_AQ, DallasCoRain_AQ)
+
+HarrisDallasRain.anova <- aov(data = HarrisDallas, Avg_Rain ~ County)
+summary(HarrisDallasRain.anova)
+
+HarrisDallasOzone.anova <- aov(data = HarrisDallas, Avg_AQI_Ozone ~ County)
+summary(HarrisDallasOzone.anova)
+
+HarrisDallasPM.anova <- aov(data = HarrisDallas, Avg_AQI_PM ~ County)
+summary(HarrisDallasPM.anova)
+
+```
+
+
+```{r}
+HarrisDallas <- rbind(HarrisCoRain_AQ, DallasCoRain_AQ)
+
+
+mytheme <- theme_minimal(base_size = 12) +
+  theme(axis.text = element_text(color = "darkblue"), 
+        legend.position = "top",
+        panel.background = element_rect(fill="lightblue"))
+theme_set(mytheme)
+
+Rain<-HarrisDallas%>%
+  ggplot(aes(
+    x=Date, 
+    y=Avg_Rain, 
+    color=County))+
+  labs(
+    x="Date",
+    y="Avg Rainfall (in)")+
+  geom_boxplot()+
+  mytheme
+
+print(Rain)
+
+Nitrogen<-PeterPaul%>%
+  ggplot(aes(
+    x=factor(month,levels=1:12,labels=month.abb),
+    y=tn_ug, 
+    color=lakename,
+    ))+
+  scale_x_discrete(drop=FALSE)+
+  labs(
+    x="Month",
+    y="N (mg/L)")+
+  geom_boxplot()+
+#  mytheme+
+   theme(legend.position="none")
+
+Phosphorus<-PeterPaul%>%
+  ggplot(aes(
+    x=factor(month,levels=1:12,labels=month.abb), 
+    y=tp_ug, 
+    color=lakename,
+    ))+
+  scale_x_discrete(drop=FALSE)+
+  labs(
+    x="Month",
+    y="P (mg/L)")+
+  geom_boxplot()+
+#  mytheme+
+  theme(legend.position = "none")+
+  theme(axis.title.x = element_blank())
+#combining plots into 1 column, aligned vertically
+plot_grid(Temp,Phosphorus,Nitrogen,ncol=1,align="v")
+
+
+```
+
