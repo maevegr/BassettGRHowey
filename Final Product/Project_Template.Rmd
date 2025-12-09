@@ -77,7 +77,7 @@ EPA Air Quality Data is collected at local monitors across the United States. It
 
 # Exploratory Analysis 
 ```{r}
-
+str(TXPM2519)
 ```
 
 
@@ -86,6 +86,381 @@ EPA Air Quality Data is collected at local monitors across the United States. It
 # Analysis
 
 ## Question 1: Is there a correlation between county level emission levels from power plants and county air quality?
+
+```{r}
+#Read in each year of eGRID data selecting relevant columns and adjusting 
+#data types for each column. 
+eGRID23_PLNT <- eGRID23_PLNT %>% 
+  mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
+  mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
+  mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
+  mutate(Plant.annual.NOx.emissions..tons.=as.numeric(
+    Plant.annual.NOx.emissions..tons.)) %>% 
+  mutate(Plant.annual.SO2.emissions..tons.=as.numeric(
+    Plant.annual.SO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CO2.emissions..tons.=as.numeric(
+    Plant.annual.CO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CH4.emissions..lbs.=as.numeric(
+    Plant.annual.CH4.emissions..lbs.)) %>% 
+  mutate(Plant.annual.N2O.emissions..lbs.=as.numeric(
+    Plant.annual.N2O.emissions..lbs.)) %>% 
+  mutate(Plant.annual.CO2.equivalent.emissions..tons.=as.numeric(
+    Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
+  mutate(Plant.annual.Hg.emissions..lbs.=as.numeric(
+    Plant.annual.Hg.emissions..lbs.)) %>% 
+  select("Data.Year", "Plant.state.abbreviation", "Plant.name", 
+         "Plant.county.name", "Plant.latitude", "Plant.longitude", 
+         "Plant.primary.fuel","Plant.annual.NOx.emissions..tons.",
+         "Plant.annual.SO2.emissions..tons.", "Plant.annual.CO2.emissions..tons.",
+         "Plant.annual.CH4.emissions..lbs.","Plant.annual.N2O.emissions..lbs.", 
+         "Plant.annual.CO2.equivalent.emissions..tons.", 
+         "Plant.annual.Hg.emissions..lbs.")  
+
+eGRID22_PLNT <- eGRID22_PLNT %>% 
+  mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
+  mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
+  mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
+  mutate(Plant.annual.NOx.emissions..tons.=as.numeric(
+    Plant.annual.NOx.emissions..tons.)) %>% 
+  mutate(Plant.annual.SO2.emissions..tons.=as.numeric(
+    Plant.annual.SO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CO2.emissions..tons.=as.numeric(
+    Plant.annual.CO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CH4.emissions..lbs.=as.numeric(
+    Plant.annual.CH4.emissions..lbs.)) %>% 
+  mutate(Plant.annual.N2O.emissions..lbs.=as.numeric(
+    Plant.annual.N2O.emissions..lbs.)) %>% 
+  mutate(Plant.annual.CO2.equivalent.emissions..tons.=as.numeric(
+    Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
+  mutate(Plant.annual.Hg.emissions..lbs.=as.numeric(
+    Plant.annual.Hg.emissions..lbs.)) %>% 
+  select("Data.Year", "Plant.state.abbreviation", "Plant.name", 
+         "Plant.county.name", "Plant.latitude", "Plant.longitude", 
+         "Plant.primary.fuel","Plant.annual.NOx.emissions..tons.",
+         "Plant.annual.SO2.emissions..tons.", "Plant.annual.CO2.emissions..tons.",
+         "Plant.annual.CH4.emissions..lbs.","Plant.annual.N2O.emissions..lbs.", 
+         "Plant.annual.CO2.equivalent.emissions..tons.", 
+         "Plant.annual.Hg.emissions..lbs.")
+
+eGRID21_PLNT <- eGRID21_PLNT %>% 
+  mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
+    mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
+    mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
+    mutate(Plant.annual.NOx.emissions..tons.=as.numeric(
+      Plant.annual.NOx.emissions..tons.)) %>% 
+    mutate(Plant.annual.SO2.emissions..tons.=as.numeric(
+      Plant.annual.SO2.emissions..tons.)) %>% 
+    mutate(Plant.annual.CO2.emissions..tons.=as.numeric(
+      Plant.annual.CO2.emissions..tons.)) %>% 
+    mutate(Plant.annual.CH4.emissions..lbs.=as.numeric(
+      Plant.annual.CH4.emissions..lbs.)) %>% 
+    mutate(Plant.annual.N2O.emissions..lbs.=as.numeric(
+      Plant.annual.N2O.emissions..lbs.)) %>% 
+    mutate(Plant.annual.CO2.equivalent.emissions..tons.=as.numeric(
+      Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
+    mutate(Plant.annual.Hg.emissions..lbs.=as.numeric(
+      Plant.annual.Hg.emissions..lbs.)) %>% 
+  select("Data.Year", "Plant.state.abbreviation", "Plant.name", 
+         "Plant.county.name", "Plant.latitude", "Plant.longitude", 
+         "Plant.primary.fuel","Plant.annual.NOx.emissions..tons.",
+         "Plant.annual.SO2.emissions..tons.", "Plant.annual.CO2.emissions..tons.",
+         "Plant.annual.CH4.emissions..lbs.","Plant.annual.N2O.emissions..lbs.", 
+         "Plant.annual.CO2.equivalent.emissions..tons.", 
+         "Plant.annual.Hg.emissions..lbs.")
+
+
+eGRID20_PLNT <- eGRID20_PLNT %>% 
+  mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
+  mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
+  mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
+  mutate(Plant.annual.NOx.emissions..tons.=as.numeric(
+    Plant.annual.NOx.emissions..tons.)) %>% 
+  mutate(Plant.annual.SO2.emissions..tons.=as.numeric(
+    Plant.annual.SO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CO2.emissions..tons.=as.numeric(
+    Plant.annual.CO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CH4.emissions..lbs.=as.numeric(
+    Plant.annual.CH4.emissions..lbs.)) %>% 
+  mutate(Plant.annual.N2O.emissions..lbs.=as.numeric(
+    Plant.annual.N2O.emissions..lbs.)) %>% 
+  mutate(Plant.annual.CO2.equivalent.emissions..tons.=as.numeric(
+    Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
+  mutate(Plant.annual.Hg.emissions..lbs.=as.numeric(
+    Plant.annual.Hg.emissions..lbs.)) %>% 
+  select("Data.Year", "Plant.state.abbreviation", "Plant.name", 
+         "Plant.county.name", "Plant.latitude", "Plant.longitude", 
+         "Plant.primary.fuel","Plant.annual.NOx.emissions..tons.",
+         "Plant.annual.SO2.emissions..tons.", "Plant.annual.CO2.emissions..tons.",
+         "Plant.annual.CH4.emissions..lbs.","Plant.annual.N2O.emissions..lbs.", 
+         "Plant.annual.CO2.equivalent.emissions..tons.", 
+         "Plant.annual.Hg.emissions..lbs.")
+
+eGRID19_PLNT <- eGRID19_PLNT %>% 
+  mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
+  mutate(Plant.latitude=as.numeric(Plant.latitude)) %>% 
+  mutate(Plant.longitude=as.numeric(Plant.longitude)) %>%
+  mutate(Plant.annual.NOx.emissions..tons.=as.numeric(
+    Plant.annual.NOx.emissions..tons.)) %>% 
+  mutate(Plant.annual.SO2.emissions..tons.=as.numeric(
+    Plant.annual.SO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CO2.emissions..tons.=as.numeric(
+    Plant.annual.CO2.emissions..tons.)) %>% 
+  mutate(Plant.annual.CH4.emissions..lbs.=as.numeric(
+    Plant.annual.CH4.emissions..lbs.)) %>% 
+  mutate(Plant.annual.N2O.emissions..lbs.=as.numeric(
+    Plant.annual.N2O.emissions..lbs.)) %>% 
+  mutate(Plant.annual.CO2.equivalent.emissions..tons.=as.numeric(
+    Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
+  mutate(Plant.annual.Hg.emissions..lbs.=as.numeric(
+    Plant.annual.Hg.emissions..lbs.)) %>% 
+  select("Data.Year", "Plant.state.abbreviation", "Plant.name", 
+         "Plant.county.name", "Plant.latitude", "Plant.longitude", 
+         "Plant.primary.fuel","Plant.annual.NOx.emissions..tons.",
+         "Plant.annual.SO2.emissions..tons.", "Plant.annual.CO2.emissions..tons.",
+         "Plant.annual.CH4.emissions..lbs.","Plant.annual.N2O.emissions..lbs.", 
+         "Plant.annual.CO2.equivalent.emissions..tons.", 
+         "Plant.annual.Hg.emissions..lbs.")
+
+#Combine all eGRID years into one dataframe
+eGRID_PLNT <- rbind (eGRID23_PLNT, eGRID22_PLNT, eGRID21_PLNT, eGRID20_PLNT,
+                     eGRID19_PLNT)
+
+#Texas plants with reported CO2 emissions
+eGRID_TX_indiv_CO2eq <- eGRID_PLNT %>% 
+  filter(Plant.state.abbreviation == "TX") %>% 
+  select("Plant.name", "Plant.county.name", "Plant.latitude", "Plant.longitude","Plant.annual.CO2.equivalent.emissions..tons.") %>% 
+  na.omit()
+
+#All Texas plants, location only
+eGRID_TX_indiv_location_only <- eGRID_PLNT %>% 
+  filter(Plant.state.abbreviation == "TX") %>% 
+  group_by(Plant.latitude, Plant.longitude) %>% 
+  select("Plant.latitude", "Plant.longitude") %>% 
+  na.omit()
+
+#Locations of Texas plants that have reported emissions
+eGRID_TX_locations <- eGRID_TX_indiv_CO2eq %>% 
+  group_by(Plant.latitude, Plant.longitude) %>% 
+  summarize(AVG.CO2 = mean(Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
+  na.omit()
+
+#Total emissions per county per year in Texas
+eGRID_PLNT_TX <- eGRID_PLNT %>% 
+  group_by(Data.Year,Plant.state.abbreviation,Plant.county.name) %>% 
+  summarize(CO2_Equiv = sum(Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
+  na.omit() %>% 
+  filter(Plant.state.abbreviation == "TX" ) %>% 
+  rename(Date = Data.Year) %>% 
+  rename(County = Plant.county.name)
+```
+
+```{r}
+#Texas PM2.5 for each year. Formatted into yearly rather than daily data
+TXPM2523_E <- TXPM2523 %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  mutate(Year = year(Date)) %>% 
+  mutate(Date=as.Date(paste0(Year, "-01-01")))
+
+TXPM2522_E <- TXPM2522 %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  mutate(Year = year(Date)) %>% 
+  mutate(Date=as.Date(paste0(Year, "-01-01")))
+
+TXPM2521_E <- TXPM2521 %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  mutate(Year = year(Date)) %>% 
+  mutate(Date=as.Date(paste0(Year, "-01-01")))
+
+TXPM2520_E <- TXPM2520 %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  mutate(Year = year(Date)) %>% 
+  mutate(Date=as.Date(paste0(Year, "-01-01")))
+
+TXPM2519_E <- TXPM2519 %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  mutate(Year = year(Date)) %>% 
+  mutate(Date=as.Date(paste0(Year, "-01-01")))
+
+#Average annual PM2.5 in Texas by County
+TXPM25 <- rbind(TXPM2519_E, TXPM2520_E, TXPM2521_E, TXPM2522_E, TXPM2523_E)
+TXPM25_CNTY <- TXPM25 %>% 
+  group_by(Date, County) %>% 
+  summarize(Avg_AQI_PM25 = mean(Daily.AQI.Value))
+
+#Texas Ozone for each year. Formatted into yearly rather than daily data
+TXOzone23_E <- TXOzone23 %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  mutate(Year = year(Date)) %>% 
+  mutate(Date=as.Date(paste0(Year, "-01-01")))
+
+TXOzone22_E <- TXOzone22 %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  mutate(Year = year(Date)) %>% 
+  mutate(Date=as.Date(paste0(Year, "-01-01")))
+
+TXOzone21_E <- TXOzone21 %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  mutate(Year = year(Date)) %>% 
+  mutate(Date=as.Date(paste0(Year, "-01-01")))
+
+TXOzone20_E <- TXOzone20 %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  mutate(Year = year(Date)) %>% 
+  mutate(Date=as.Date(paste0(Year, "-01-01")))
+
+TXOzone19_E <- TXOzone19 %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
+  mutate(Year = year(Date)) %>% 
+  mutate(Date=as.Date(paste0(Year, "-01-01")))
+
+#Average annual Ozone in Texas by County
+TXOzone <- rbind(TXOzone19_E, TXOzone20_E, TXOzone21_E, TXOzone22_E, TXOzone23_E)
+TXOzone_CNTY <- TXOzone %>% 
+  group_by(Date, County) %>% 
+  summarize(Avg_AQI_Ozone = mean(Daily.AQI.Value))
+```
+
+```{r}
+#Annual average AQI (ozone and PM2.5) and total emissions per county
+TXEmissions_PM25 <- left_join(TXPM25_CNTY, eGRID_PLNT_TX, 
+                              by = c("Date", "County")) %>% 
+  na.omit()
+
+TXEmissions_Ozone <- left_join(TXOzone_CNTY, eGRID_PLNT_TX, 
+                              by = c("Date", "County")) %>% 
+  na.omit()
+```
+
+
+```{r}
+#Map of Texas counties
+Texas_Counties <- st_read(here('Data/cb_2018_us_county_20m.shp')) %>% 
+  filter(STATEFP == 48)
+
+#Locations of all Texas plants (reporting and not)
+ALLPlant_Locations <- st_as_sf(eGRID_TX_indiv_location_only,
+    coords = c('Plant.longitude','Plant.latitude'),
+    crs = 4326)
+
+#Locations of reporting plants only
+Plant_Locations <- st_as_sf(eGRID_TX_locations,
+    coords = c('Plant.longitude','Plant.latitude'),
+    crs = 4326)
+
+#Locations of Ozone monitors
+TXOzone_locations <- TXOzone %>% 
+  group_by(Site.Latitude, Site.Longitude) %>% 
+  summarize(AVGAQI.O3 = mean(Daily.AQI.Value))
+  
+Ozone_Locations <- st_as_sf(TXOzone_locations,
+    coords = c('Site.Longitude','Site.Latitude'),
+    crs = 4326) 
+
+#Locations of PM2.5 monitors
+TXPM25_locations <- TXPM25 %>% 
+  group_by(Site.Latitude, Site.Longitude) %>% 
+  summarize(AVGAQI.PM25 = mean(Daily.AQI.Value))
+  
+PM25_Locations <- st_as_sf(TXPM25_locations,
+    coords = c('Site.Longitude','Site.Latitude'),
+    crs = 4326) 
+
+```
+
+```{r}
+#Map of reporting and not reporting Texas plants
+ggplot()+
+  geom_sf(data = Texas_Counties)+
+  geom_sf(data = ALLPlant_Locations, aes(color = "All Reporting Plants"),size = 0.5)+  
+  scale_color_manual(name = "", values = c("All Reporting Plants" = "Black"))+
+  new_scale_color()+
+  geom_sf(data = Plant_Locations, aes(color = "Emissions Reporting Plants"), size = 0.5)+
+  scale_color_manual(name = "", values = c("Emissions Reporting Plants" = "Blue"))+
+  ggtitle("Listed and Emissions Reporting Texas Power Plants", 
+          subtitle="2018 - 2023 eGRID Reports")
+  
+
+#Map of reporting Texas plants and ozone/PM2.5 monitors
+ggplot() +
+  geom_sf(data = Texas_Counties)+
+  geom_sf(data = Plant_Locations, color = "blue",shape = 21,fill=NA,stroke=0.2, aes(color = "Reporting Plants", size=AVG.CO2))+
+  geom_sf(data = Ozone_Locations,size=0.5, aes(color = "Ozone Monitor"))+
+  scale_color_manual(name = "", values = c("Ozone Monitor" = "Red"))+
+  new_scale_color()+
+  geom_sf(data = PM25_Locations, size=0.5, aes(color = "PM2.5 Monitor"))+ 
+  scale_color_manual(name = "Air Quality Monitor Type", values = c("PM2.5 Monitor" = "Green"))+
+  new_scale_color()+
+  labs(size="Average Annual CO2 Equivalent (tons)")+
+  ggtitle("Air Quality Monitors & Annual Emissions from Power Plants and in Texas",
+           subtitle="2018 - 2023")
+
+```
+
+```{r}
+#Graph of emissions vs ozone
+Emissions_O3 <- TXEmissions_Ozone %>% 
+  ggplot(aes(x = CO2_Equiv, y = Avg_AQI_Ozone))+
+  geom_point(aes(color = Date))+
+  geom_text(data = TXEmissions_Ozone %>% 
+              filter(County == "Harrison"),
+              aes(label = County), vjust = -1)+
+  xlab("Annual CO2 Equivalent Emissions per County (tons)")+
+  ylab("Average Daily Ozone AQI Value per County")+
+  ggtitle("Average Daily Ozone AQI Value vs. Annual CO2 Equivalent Emissions", 
+          subtitle = "Per County, Texas, 2019 - 2023")
+Emissions_O3
+
+#Linear regression of emissions vs ozone 
+O3byEmissionsRegression <- lm(
+  TXEmissions_Ozone$Avg_AQI_Ozone ~ TXEmissions_Ozone$CO2_Equiv)
+summary(O3byEmissionsRegression)
+```
+
+Table: Linear Regression of Emissions vs. Ozone Air Quality
+
+|Item | Value | 
+|-------:|:------|
+| P-value | 0.1853 |
+| R-squared | 0.0383 |
+| Degrees of Freedom |21 | 
+
+```{r}
+#Graph of emissions vs PM2.5
+Emissions_PM25<-TXEmissions_PM25 %>% 
+  ggplot(aes(x = CO2_Equiv, y = Avg_AQI_PM25))+
+  geom_point(aes(color = Date))+
+  geom_text(data = TXEmissions_PM25 %>% 
+              filter(County == "Harrison"),
+              aes(label = County), vjust = -1)+
+  xlab("Annual CO2 Equivalent Emissions per County (tons)")+
+  ylab("Average Daily PM2.5 AQI Value per County")+
+  ggtitle("Average Daily PM2.5 AQI Value vs. Annual CO2 Equivalent Emissions in Individual Counties", subtitle = "Texas, 2019 - 2023")
+Emissions_PM25
+
+#Linear regression of emissions vs PM2.5
+PM25byEmissionsRegression <- lm(
+  TXEmissions_PM25$Avg_AQI_PM25 ~ TXEmissions_PM25$CO2_Equiv)
+summary(PM25byEmissionsRegression)
+```
+
+Table: Linear Regression of Emissions vs. PM2.5 Air Quality
+
+|Item | Value | 
+|-------:|:------|
+| P-value | 0.1441 |
+| R-squared | 0.0612 |
+| Degrees of Freedom |19 | 
+
 ###How often is emissions data reported?
 
 Insert map of reporting vs not reporting plants
