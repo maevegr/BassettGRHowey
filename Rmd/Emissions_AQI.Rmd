@@ -8,13 +8,18 @@ output:
 editor_options:
   chunk_output_type: console
 ---
+```{r}
+#install.packages("ggnewscale")
+```
 
 ```{r setup, include=FALSE}
-library(tidyverse);library(lubridate);library(here);library(sf)
+library(tidyverse);library(lubridate);library(here);library(sf);library(ggnewscale)
 here()
 ```
 
 ```{r Data Import:eGRID}
+#Read in each year of eGRID data selecting relevant columns and adjusting 
+#data types for each column. 
 eGRID23_PLNT <- read.csv(here("Data/egrid2023_data_rev2_PLNT.csv"),
                          na.strings = c("", " ", "0")) %>% 
   slice(-1) %>% 
@@ -155,20 +160,35 @@ eGRID19_PLNT <- read.csv(here("Data/egrid2019_data_PLNT.csv"), na.strings = c(""
          "Plant.annual.CO2.equivalent.emissions..tons.", 
          "Plant.annual.Hg.emissions..lbs.")
 
+#Combine all eGRID years into one dataframe
 eGRID_PLNT <- rbind (eGRID23_PLNT, eGRID22_PLNT, eGRID21_PLNT, eGRID20_PLNT,
                      eGRID19_PLNT)
-eGRID_TX_indiv <- filter(eGRID_PLNT, Plant.state.abbreviation == "TX")
 
-eGRID_TX_indiv_location_only <- eGRID_TX_indiv %>% 
+#Texas plants with reported CO2 emissions
+eGRID_TX_indiv_CO2eq <- eGRID_PLNT %>% 
+  filter(Plant.state.abbreviation == "TX") %>% 
+  select("Plant.name", "Plant.county.name", "Plant.latitude", "Plant.longitude","Plant.annual.CO2.equivalent.emissions..tons.") %>% 
+  na.omit()
+
+#All Texas plants, location only
+eGRID_TX_indiv_location_only <- eGRID_PLNT %>% 
+  filter(Plant.state.abbreviation == "TX") %>% 
   group_by(Plant.latitude, Plant.longitude) %>% 
   select("Plant.latitude", "Plant.longitude") %>% 
   na.omit()
 
-eGRID_PLNT_US <- group_by(eGRID_PLNT, Plant.state.abbreviation,Plant.county.name, Data.Year) %>% 
-  summarize(CO2_Equiv = sum(Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
+#Locations of Texas plants that have reported emissions
+eGRID_TX_locations <- eGRID_TX_indiv_CO2eq %>% 
+  group_by(Plant.latitude, Plant.longitude) %>% 
+  summarize(AVG.CO2 = mean(Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
   na.omit()
 
-eGRID_PLNT_TX <- filter(eGRID_PLNT_US,Plant.state.abbreviation == "TX" ) %>% 
+#Total emissions per county per year in Texas
+eGRID_PLNT_TX <- eGRID_PLNT %>% 
+  group_by(Data.Year,Plant.state.abbreviation,Plant.county.name) %>% 
+  summarize(CO2_Equiv = sum(Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
+  na.omit() %>% 
+  filter(Plant.state.abbreviation == "TX" ) %>% 
   rename(Date = Data.Year) %>% 
   rename(County = Plant.county.name)
 ```
@@ -176,7 +196,7 @@ eGRID_PLNT_TX <- filter(eGRID_PLNT_US,Plant.state.abbreviation == "TX" ) %>%
 
 
 ```{r Data Import: Air Quality}
-#TX only PM2.5
+#Texas PM2.5 for each year. Formatted into yearly rather than daily data
 TXPM2523 <- read.csv(here("Data/TXPM2523.csv")) %>% 
   mutate(Date=mdy(Date)) %>% 
   select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
@@ -207,13 +227,13 @@ TXPM2519 <- read.csv(here("Data/TXPM2519.csv")) %>%
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
-#All Texas PM2.5 2018 - 2023 by County
+#Average annual PM2.5 in Texas by County
 TXPM25 <- rbind(TXPM2519, TXPM2520, TXPM2521, TXPM2522, TXPM2523)
 TXPM25_CNTY <- TXPM25 %>% 
   group_by(Date, County) %>% 
   summarize(Avg_AQI_PM25 = mean(Daily.AQI.Value))
 
-#TX only Ozone
+#Texas Ozone for each year. Formatted into yearly rather than daily data
 TXOzone23 <- read.csv(here("Data/TXOzone23.csv")) %>% 
   mutate(Date=mdy(Date)) %>% 
   select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude") %>% 
@@ -244,7 +264,7 @@ TXOzone19 <- read.csv(here("Data/TXOzone19.csv")) %>%
   mutate(Year = year(Date)) %>% 
   mutate(Date=as.Date(paste0(Year, "-01-01")))
 
-#All Texas Ozone 2018 - 2023 by County
+#Average annual Ozone in Texas by County
 TXOzone <- rbind(TXOzone19, TXOzone20, TXOzone21, TXOzone22, TXOzone23)
 TXOzone_CNTY <- TXOzone %>% 
   group_by(Date, County) %>% 
@@ -252,37 +272,34 @@ TXOzone_CNTY <- TXOzone %>%
 ```
 
 ```{r Wrangling: Emissions and AQI}
-#TX Emissions and AQI
+#Annual average AQI (ozone and PM2.5) and total emissions per county
 TXEmissions_PM25 <- left_join(TXPM25_CNTY, eGRID_PLNT_TX, 
                               by = c("Date", "County")) %>% 
   na.omit()
+
 TXEmissions_Ozone <- left_join(TXOzone_CNTY, eGRID_PLNT_TX, 
                               by = c("Date", "County")) %>% 
   na.omit()
 ```
 
 
-```{r}
+```{r Spatial Data Wrangling}
+
+#Map of Texas counties
 Texas_Counties <- st_read(here('Data/cb_2018_us_county_20m.shp')) %>% 
   filter(STATEFP == 48)
 
-eGRID_TX_indiv_CO2eq <- eGRID_TX_indiv %>% 
-  select("Plant.name", "Plant.county.name", "Plant.latitude", "Plant.longitude","Plant.annual.CO2.equivalent.emissions..tons.") %>% 
-  na.omit()
-
-eGRID_TX_locations <- eGRID_TX_indiv_CO2eq %>% 
-  group_by(Plant.latitude, Plant.longitude) %>% 
-  summarize(AVG.CO2 = mean(Plant.annual.CO2.equivalent.emissions..tons.)) %>% 
-  na.omit()
-
+#Locations of all Texas plants (reporting and not)
 ALLPlant_Locations <- st_as_sf(eGRID_TX_indiv_location_only,
     coords = c('Plant.longitude','Plant.latitude'),
     crs = 4326)
 
+#Locations of reporting plants only
 Plant_Locations <- st_as_sf(eGRID_TX_locations,
     coords = c('Plant.longitude','Plant.latitude'),
     crs = 4326)
 
+#Locations of Ozone monitors
 TXOzone_locations <- TXOzone %>% 
   group_by(Site.Latitude, Site.Longitude) %>% 
   summarize(AVGAQI.O3 = mean(Daily.AQI.Value))
@@ -291,6 +308,7 @@ Ozone_Locations <- st_as_sf(TXOzone_locations,
     coords = c('Site.Longitude','Site.Latitude'),
     crs = 4326) 
 
+#Locations of PM2.5 monitors
 TXPM25_locations <- TXPM25 %>% 
   group_by(Site.Latitude, Site.Longitude) %>% 
   summarize(AVGAQI.PM25 = mean(Daily.AQI.Value))
@@ -304,51 +322,66 @@ PM25_Locations <- st_as_sf(TXPM25_locations,
 ```
 
 
-```{Map: Emissions vs monitoring stations r}
+```{r, echo=FALSE}
+
+#Map of reporting and not reporting Texas plants
 ggplot()+
   geom_sf(data = Texas_Counties)+
-  geom_sf(data = ALLPlant_Locations, size = 0.5)+  
-  geom_sf(data = Plant_Locations, color = "blue", size = 0.5)+
-  ggtitle("Listed and Emissions Reporting Texas Power Plants in 2018 - 2023 eGRID Reports", subtitle="Plants Reporting CO2 Eqivalence at Least Once between 2018 and 2023 Shown in Blue")
+  geom_sf(data = ALLPlant_Locations, aes(color = "All Reporting Plants"),size = 0.5)+  
+  scale_color_manual(name = "", values = c("All Reporting Plants" = "Black"))+
+  new_scale_color()+
+  geom_sf(data = Plant_Locations, aes(color = "Emissions Reporting Plants"), size = 0.5)+
+  scale_color_manual(name = "", values = c("Emissions Reporting Plants" = "Blue"))+
+  ggtitle("Listed and Emissions Reporting Texas Power Plants", 
+          subtitle="2018 - 2023 eGRID Reports")
   
 
+#Map of reporting Texas plants and ozone/PM2.5 monitors
 ggplot() +
   geom_sf(data = Texas_Counties)+
-  geom_sf(data = Plant_Locations, shape = 21,fill=NA,color="blue",stroke=0.2, aes(size=AVG.CO2))+
+  geom_sf(data = Ozone_Locations,size=0.3, aes(color = "Ozone Monitor"))+
+  scale_color_manual(name = "", values = c("Ozone Monitor" = "Red"))+
+  new_scale_color()+
+  geom_sf(data = PM25_Locations, size=0.3, aes(color = "PM2.5 Monitor"))+ 
+  scale_color_manual(name = "", values = c("PM2.5 Monitor" = "Green"))+
+  new_scale_color()+
+  
   labs(size="Average Annual CO2 Equivalent (tons)")+
-  ggtitle("Reporting Emissions from Power Plants in Texas")+
-  theme(legend.position = "bottom")+
-  geom_sf(data = Ozone_Locations,color="red",size=0.3)+
-  geom_sf(data = PM25_Locations,color="green",size=0.3)
+  ggtitle("Reporting Emissions from Power Plants in Texas",
+           subtitle="2018 - 2023 eGRID Reports")
+  #theme(legend.position = "bottom")
 
 ```
 
 
 
-```{Emissions compared to Air Quality r}
+```{r}
+
+#Graph of emissions vs ozone
 Emissions_O3 <- TXEmissions_Ozone %>% 
   ggplot(aes(x = CO2_Equiv, y = Avg_AQI_Ozone))+
   geom_point(aes(color = Date))+
   xlab("Annual CO2 Equivalent Emissions per County (tons)")+
   ylab("Average Daily Ozone AQI Value per County")+
-  ggtitle("Average Daily Ozone AQI Value vs. Annual CO2 Equivalent Emissions from Reporting Power Plants per County", subtitle = "Texas, 2018 - 2023")
-  
-
+  ggtitle("Average Daily Ozone AQI Value vs. Annual CO2 Equivalent Emissions", 
+          subtitle = "Per County, Texas, 2019 - 2023")
 Emissions_O3
 
+#Linear regression of emissions vs ozone 
 O3byEmissionsRegression <- lm(
   TXEmissions_Ozone$Avg_AQI_Ozone ~ TXEmissions_Ozone$CO2_Equiv)
 summary(O3byEmissionsRegression)
 
+#Graph of emissions vs PM2.5
 Emissions_PM25<-TXEmissions_PM25 %>% 
   ggplot(aes(x = CO2_Equiv, y = Avg_AQI_PM25))+
   geom_point(aes(color = Date))+
   xlab("Annual CO2 Equivalent Emissions per County (tons)")+
   ylab("Average Daily PM2.5 AQI Value per County")+
-  ggtitle("Average Daily PM2.5 AQI Value vs. Annual CO2 Equivalent Emissions from Reporting Power Plants per County", subtitle = "Texas, 2018 - 2023")
-
+  ggtitle("Average Daily PM2.5 AQI Value vs. Annual CO2 Equivalent Emissions from Reporting Power Plants", subtitle = "Texas, 2019 - 2023")
 Emissions_PM25
 
+#Linear regression of emissions vs PM2.5
 PM25byEmissionsRegression <- lm(
   TXEmissions_PM25$Avg_AQI_PM25 ~ TXEmissions_PM25$CO2_Equiv)
 summary(PM25byEmissionsRegression)
