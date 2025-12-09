@@ -456,7 +456,7 @@ ggplot() +
 ### Are annual county emissions correlated with annual county air quality?
 The following graphs and tables show the relationship between total annual county emissions and average annual county air quality. A linear regression was run on the data to determine if the relationship has a significant correlation. Harris County data points are highlighted.
 
-```{r Q1 Emissions vs Ozone, echo=FALSE, fig.cap = "Average Daily Ozone AQI Value vs. Annual CO2 Equivalent Emissions"}
+```{r Q1 Emissions vs Ozone, echo=FALSE, fig.cap="Average Daily Ozone AQI Value vs. Annual CO2 Equivalent Emissions", warning=FALSE}
 #Graph of emissions vs ozone
 Emissions_O3 <- TXEmissions_Ozone %>% 
   ggplot(aes(x = CO2_Equiv, y = Avg_AQI_Ozone))+
@@ -490,7 +490,7 @@ Table: Linear Regression of Emissions vs. Ozone Air Quality
 | R-squared | -0.0043 |
 | Degrees of Freedom |136 | 
 
-```{r Q1 Emissions vs PM2.5, echo=FALSE, fig.cap= "Average Daily PM2.5 AQI Value vs. Annual CO2 Equivalent Emissions in Individual Counties"}
+```{r Q1 Emissions vs PM2.5, echo=FALSE, fig.cap="Average Daily PM2.5 AQI Value vs. Annual CO2 Equivalent Emissions in Individual Counties", warning=FALSE}
 #Graph of emissions vs PM2.5
 Emissions_PM25<-TXEmissions_PM25 %>% 
   ggplot(aes(x = CO2_Equiv, y = Avg_AQI_PM25))+
@@ -805,7 +805,7 @@ TX_emiss_O3_Harris <- inner_join(TXOzone_Harris, eGRID_PLNT_TX,
                                  by = c("Date", "County"))
 ```
 
-```{r}
+```{r Q2 plots}
 #Graph of PM2.5 AQI over time
 PM25.plot <- TX_emiss_PM25_Harris %>% 
   ggplot(
