@@ -18,7 +18,7 @@ editor_options:
 
 # Load your packages
 library(tidyverse);library(lubridate);library(here);library(sf);
-library(ggnewscale)
+library(ggnewscale);library(cowplot)
 here()
 
 # Set your ggplot theme
@@ -878,10 +878,10 @@ CH4.plot
 
 ## Question 3: 
 
-```{r setup, include=FALSE}
-library(tidyverse);library(lubridate);library(here);library(cowplot);library(dplyr);library(ggplot2)
-here()
-```
+#```{r setup, include=FALSE}
+#library(tidyverse);library(lubridate);library(here);library(cowplot);librar#y(dplyr);library(ggplot2)
+#here()
+#```
 
 ```{r Data Import: Air Quality}
 #TX only PM2.5
