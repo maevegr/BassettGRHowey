@@ -459,7 +459,7 @@ ggplot() +
            subtitle="2018 - 2023")
 ```
 
-
+\newpage
 ### Are annual county emissions correlated with annual county air quality?
 The following graphs and tables show the relationship between total annual county emissions and average annual county air quality. A linear regression was run on the data to determine if the relationship has a significant correlation. Harris County data points are highlighted.
 
@@ -532,7 +532,7 @@ Table: Linear Regression of Emissions vs. PM2.5 Air Quality
 | R-squared | -0.0025 |
 | Degrees of Freedom |125 | 
 
-
+\newpage
 ## Question 2: Is there a trend in air quality values and emissions over time in Harris county, Texas? 
 ```{r Wrangle eGRID data, eval=TRUE, echo=FALSE}
 eGRID23_PLNT <- eGRID23_PLNT %>% 
@@ -813,7 +813,7 @@ TX_emiss_PM25_Harris <- inner_join(TXPM25_Harris, eGRID_PLNT_TX,
 TX_emiss_O3_Harris <- inner_join(TXOzone_Harris, eGRID_PLNT_TX,
                                  by = c("Date", "County"))
 ```
-
+\newpage
 ```{r Q2 plot: PM2.5 AQI over time, echo=FALSE, fig.cap="Average daily PM2.5 AQI in Harris County, Texas, 2019-2023"}
 #Graph of PM2.5 AQI over time
 PM25.plot <- TX_emiss_PM25_Harris %>% 
@@ -828,7 +828,7 @@ PM25.plot <- TX_emiss_PM25_Harris %>%
   ylab("AQI")
 PM25.plot
 ```
-
+\newpage
 ```{r Q2 plot: Ozone AQI over time, echo=FALSE, fig.cap="Average daily ozone AQI in Harris County, Texas, 2019-2023"}
 #Graph of Ozone AQI  over time
 O3.plot <- TX_emiss_O3_Harris %>%
@@ -843,7 +843,7 @@ O3.plot <- TX_emiss_O3_Harris %>%
   ylab("AQI")
 O3.plot
 ```
-
+\newpage
 ```{r Q2 plot: CO2e emissions over time, echo=FALSE, fig.cap="Annual CO2 equivalent in Harris County, Texas, 2019-2023"}
 #Graph of CO2e emissions over time
 CO2e.plot <- TX_emiss_O3_Harris %>%
@@ -858,7 +858,7 @@ CO2e.plot <- TX_emiss_O3_Harris %>%
   ylab("CO2 Equivalent (ton)")
 CO2e.plot
 ```
-
+\newpage
 ```{r Q2 plot: CH4 emissions over time, echo=FALSE, fig.cap="Annual methane emissions in Harris County, Texas, 2019-2023"}
 #Graph of CH4 emissions over time
 CH4.plot <- TX_emiss_O3_Harris %>%
@@ -874,6 +874,7 @@ CH4.plot <- TX_emiss_O3_Harris %>%
 CH4.plot
 ```
 
+\newpage
 ## Question 3: 
 
 ```{r Data Import: Air Quality}
