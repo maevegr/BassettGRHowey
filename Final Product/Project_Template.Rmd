@@ -4,7 +4,8 @@ subtitle: 'https://github.com/maevegr/BassettGRHowey'
 author: 'Sara Bassett, Maeve Gualtieri-Reed, Xia Meng Howey'
 date: 'December 12, 2025'
 output:
-  pdf_document: default
+  pdf_document:
+    fig_caption: true
 editor_options:
   chunk_output_type: console
 ---
@@ -534,6 +535,9 @@ Table: Linear Regression of Emissions vs. PM2.5 Air Quality
 
 \newpage
 ## Question 2: Is there a trend in air quality values and emissions over time in Harris county, Texas? 
+
+After analyzing the relationship between total CO2 equivalent emissions and AQI in PM2.5 and Ozone, we found no statistical correlation between either. To further investigate from a different approach and look at temporal trends, we focused on one area, Harris county, due to its high number of both emissions and air quality monitor data. This is shown in the Figure 2 map as the concentrated area in the southeastern part of Texas. In addition to analyzing CO2 equivalent emissions, methane emissions were analyzed. Unlike CO2, SO2, N2O which are all summed to calculate the total CO2 equivalent emissions, methane is a volatile organic compound (VOC) which can react with nitrogen oxides and sunlight to form tropospheric ozone. We wanted to test among these greenhouse gases, if methane specifically has a relationship with AQI.
+
 ```{r Wrangle eGRID data, eval=TRUE, echo=FALSE}
 eGRID23_PLNT <- eGRID23_PLNT %>% 
   #slice(-1) %>% 
@@ -814,7 +818,11 @@ TX_emiss_O3_Harris <- inner_join(TXOzone_Harris, eGRID_PLNT_TX,
                                  by = c("Date", "County"))
 ```
 \newpage
-```{r Q2 plot: PM2.5 AQI over time, echo=FALSE, fig.cap="Average daily PM2.5 AQI in Harris County, Texas, 2019-2023"}
+
+
+The following plot shows the PM2.5 AQI over time, in Harris County, Texas. There is an overall trend of increasing PM2.5 AQI over the five-year period.
+
+```{r Q2_plot_PM25_AQI_over_time, echo=FALSE, warning = FALSE, fig.cap="Average daily PM2.5 AQI in Harris County, Texas, 2019-2023"}
 #Graph of PM2.5 AQI over time
 PM25.plot <- TX_emiss_PM25_Harris %>% 
   ggplot(
@@ -823,13 +831,18 @@ PM25.plot <- TX_emiss_PM25_Harris %>%
       y = Avg_AQI_PM25
     )
   )+
-  geom_point()+
+  geom_point(color = "red",
+             size = 3)+
   xlab("Time")+
   ylab("AQI")
 PM25.plot
 ```
 \newpage
-```{r Q2 plot: Ozone AQI over time, echo=FALSE, fig.cap="Average daily ozone AQI in Harris County, Texas, 2019-2023"}
+
+
+Figure 6 shows the ozone AQI over time in Harris County, Texas. There is an overall trend of increasing ozone AQI over the five-year period.
+
+```{r Q2_plot_Ozone_AQI_over_time, echo=FALSE, fig.cap="Average daily ozone AQI in Harris County, Texas, 2019-2023"}
 #Graph of Ozone AQI  over time
 O3.plot <- TX_emiss_O3_Harris %>%
   ggplot(
@@ -838,12 +851,17 @@ O3.plot <- TX_emiss_O3_Harris %>%
       y = Avg_AQI_Ozone
     )
   )+
-  geom_point()+
+  geom_point(color = "blue",
+             size = 3)+
   xlab("Time")+
   ylab("AQI")
 O3.plot
 ```
 \newpage
+
+
+Figure 7 shows the CO2 equivalent emissions over time in Harris County, Texas. There is an overall trend of decreasing CO2 equivalent emissions over the five-year period. The opposite trend of what occurred for PM2.5 and ozone AQI.
+
 ```{r Q2 plot: CO2e emissions over time, echo=FALSE, fig.cap="Annual CO2 equivalent in Harris County, Texas, 2019-2023"}
 #Graph of CO2e emissions over time
 CO2e.plot <- TX_emiss_O3_Harris %>%
@@ -853,12 +871,17 @@ CO2e.plot <- TX_emiss_O3_Harris %>%
       y = CO2_Equiv
     )
   )+
-  geom_point()+
+  geom_point(color = "green",
+             size = 3)+
   xlab("Time")+
   ylab("CO2 Equivalent (ton)")
 CO2e.plot
 ```
 \newpage
+
+
+Figure 8 shows the methane equivalent emissions over time in Harris County, Texas. There is an overall trend of decreasing methane emissions over the five-year period. The opposite trend of what occurred for PM2.5 and ozone AQI.
+
 ```{r Q2 plot: CH4 emissions over time, echo=FALSE, fig.cap="Annual methane emissions in Harris County, Texas, 2019-2023"}
 #Graph of CH4 emissions over time
 CH4.plot <- TX_emiss_O3_Harris %>%
@@ -868,7 +891,8 @@ CH4.plot <- TX_emiss_O3_Harris %>%
       y = Annual_CH4_lb
     )
   )+
-  geom_point()+
+  geom_point(color = "orange",
+             size = 3)+
   xlab("Time")+
   ylab("CH4 Emissions (lb)")
 CH4.plot
