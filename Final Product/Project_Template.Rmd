@@ -1,7 +1,10 @@
 ---
+title: 'Comparing Texas Emissions and Rainfall with Air Quality'
+subtitle: 'https://github.com/maevegr/BassettGRHowey'
+author: 'Sara Bassett, Maeve Gualtieri-Reed, Xia Meng Howey'
+date: 'December 12, 2025'
 output:
   pdf_document: default
-  html_document: default
 editor_options:
   chunk_output_type: console
 ---
@@ -530,7 +533,7 @@ Table: Linear Regression of Emissions vs. PM2.5 Air Quality
 | Degrees of Freedom |125 | 
 
 
-## Question 2: 
+## Question 2: Is there a trend in air quality values and emissions over time in Harris county, Texas? 
 ```{r Wrangle eGRID data, eval=TRUE, echo=FALSE}
 eGRID23_PLNT <- eGRID23_PLNT %>% 
   #slice(-1) %>% 
@@ -811,7 +814,7 @@ TX_emiss_O3_Harris <- inner_join(TXOzone_Harris, eGRID_PLNT_TX,
                                  by = c("Date", "County"))
 ```
 
-```{r Q2 plots, eval=TRUE, echo=FALSE}
+```{r Q2 plot: PM2.5 AQI over time, echo=FALSE, fig.cap="Average daily PM2.5 AQI in Harris County, Texas, 2019-2023"}
 #Graph of PM2.5 AQI over time
 PM25.plot <- TX_emiss_PM25_Harris %>% 
   ggplot(
@@ -822,11 +825,11 @@ PM25.plot <- TX_emiss_PM25_Harris %>%
   )+
   geom_point()+
   xlab("Time")+
-  ylab("AQI")+
-  ggtitle("Average daily PM2.5 AQI", 
-          subtitle = "Harris County, Texas, 2019 - 2023")
+  ylab("AQI")
 PM25.plot
+```
 
+```{r Q2 plot: Ozone AQI over time, echo=FALSE, fig.cap="Average daily ozone AQI in Harris County, Texas, 2019-2023"}
 #Graph of Ozone AQI  over time
 O3.plot <- TX_emiss_O3_Harris %>%
   ggplot(
@@ -837,11 +840,11 @@ O3.plot <- TX_emiss_O3_Harris %>%
   )+
   geom_point()+
   xlab("Time")+
-  ylab("AQI")+
-  ggtitle("Average daily ozone AQI", 
-          subtitle = "Harris County, Texas, 2019 - 2023")
+  ylab("AQI")
 O3.plot
-  
+```
+
+```{r Q2 plot: CO2e emissions over time, echo=FALSE, fig.cap="Annual CO2 equivalent in Harris County, Texas, 2019-2023"}
 #Graph of CO2e emissions over time
 CO2e.plot <- TX_emiss_O3_Harris %>%
   ggplot(
@@ -852,11 +855,11 @@ CO2e.plot <- TX_emiss_O3_Harris %>%
   )+
   geom_point()+
   xlab("Time")+
-  ylab("CO2 Equivalent (ton)")+
-  ggtitle(expression("Annual CO"[2] * "equivalent"), 
-          subtitle = "Harris County, Texas, 2019 - 2023")
+  ylab("CO2 Equivalent (ton)")
 CO2e.plot
-    
+```
+
+```{r Q2 plot: CH4 emissions over time, echo=FALSE, fig.cap="Annual methane emissions in Harris County, Texas, 2019-2023"}
 #Graph of CH4 emissions over time
 CH4.plot <- TX_emiss_O3_Harris %>%
   ggplot(
@@ -867,21 +870,11 @@ CH4.plot <- TX_emiss_O3_Harris %>%
   )+
   geom_point()+
   xlab("Time")+
-  ylab("CH4 Emissions (lb)")+
-  ggtitle("Annual methane emissions", 
-          subtitle = "Harris County, Texas, 2019 - 2023")
+  ylab("CH4 Emissions (lb)")
 CH4.plot
-    
 ```
 
-
-
 ## Question 3: 
-
-#```{r setup, include=FALSE}
-#library(tidyverse);library(lubridate);library(here);library(cowplot);librar#y(dplyr);library(ggplot2)
-#here()
-#```
 
 ```{r Data Import: Air Quality}
 #TX only PM2.5
