@@ -878,6 +878,221 @@ CH4.plot
 
 ## Question 3: 
 
+```{r setup, include=FALSE}
+library(tidyverse);library(lubridate);library(here);library(cowplot);library(dplyr);library(ggplot2)
+here()
+```
+
+```{r Data Import: Air Quality}
+#TX only PM2.5
+TXPM2523_SB <- read.csv(here("Data/TXPM2523.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXPM2522_SB <- read.csv(here("Data/TXPM2522.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXPM2521_SB <- read.csv(here("Data/TXPM2521.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXPM2520_SB <- read.csv(here("Data/TXPM2520.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXPM2519_SB <- read.csv(here("Data/TXPM2519.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+#All Texas PM2.5 2018 - 2023 by County
+TXPM25_SB <- rbind(TXPM2519_SB, TXPM2520_SB, TXPM2521_SB, TXPM2522_SB, TXPM2523_SB)
+
+#TX only Ozone
+TXOzone23_SB <- read.csv(here("Data/TXOzone23.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXOzone22_SB <- read.csv(here("Data/TXOzone22.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXOzone21_SB <- read.csv(here("Data/TXOzone21.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXOzone20_SB <- read.csv(here("Data/TXOzone20.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+TXOzone19_SB <- read.csv(here("Data/TXOzone19.csv")) %>% 
+  mutate(Date=mdy(Date)) %>% 
+  select("Date", "Daily.AQI.Value", "Local.Site.Name", "AQS.Parameter.Description", "State", "County", "Site.Latitude", "Site.Longitude")
+
+#All Texas Ozone 2018 - 2023 by County
+TXOzone_SB <- rbind(TXOzone19_SB, TXOzone20_SB, TXOzone21_SB, TXOzone22_SB, TXOzone23_SB)
+
+```
+
+
+```{r}
+TXOzoneHarris <- TXOzone_SB %>%
+  filter(County == 'Harris')%>%
+  group_by(Date) %>%
+  summarise(Avg_AQI_Ozone = mean(Daily.AQI.Value),County='Harris')
+
+TXPM25Harris <- TXPM25_SB %>%
+  filter(County == 'Harris')%>%
+  group_by(Date) %>%
+  summarise(Avg_AQI_PM = mean(Daily.AQI.Value),County='Harris')
+
+HarrisCoRain <- read.csv(here("Data/HarrisCoRain.csv"))%>%
+  na.omit(PRCP)%>%
+  group_by(DATE) %>%
+  summarise(Avg_Rain = mean(PRCP))%>%
+  mutate(Date=mdy(DATE))%>%
+  select("Date","Avg_Rain")
+
+HarrisCoRain_AQ1 <- left_join(TXOzoneHarris, HarrisCoRain)  
+                              by = c("Date")
+
+HarrisCoRain_AQ <- left_join(HarrisCoRain_AQ1, TXPM25Harris)  
+                              by = c("Date")
+
+HarrisRainOzone.regression <- lm(
+  data = HarrisCoRain_AQ,
+  Avg_Rain ~ Avg_AQI_Ozone)
+summary(HarrisRainOzone.regression)
+
+HarrisRainPM.regression <- lm(
+  data = HarrisCoRain_AQ,
+  Avg_Rain ~ Avg_AQI_PM)
+summary(HarrisRainPM.regression)
+                                                           
+```
+
+```{r}
+
+TXOzoneDallas <- TXOzone_SB %>%
+  filter(County == 'Dallas')%>%
+  group_by(Date) %>%
+  summarise(Avg_AQI_Ozone = mean(Daily.AQI.Value),County='Dallas')
+
+TXPM25Dallas <- TXPM25_SB %>%
+  filter(County == 'Dallas')%>%
+  group_by(Date) %>%
+  summarise(Avg_AQI_PM = mean(Daily.AQI.Value),County='Dallas')
+
+DallasCoRain <- read.csv(here("Data/DallasCoRain.csv"))%>%
+  na.omit(PRCP)%>%
+  group_by(DATE) %>%
+  summarise(Avg_Rain = mean(PRCP))%>%
+  mutate(Date=ymd(DATE))%>%
+  select("Date","Avg_Rain")
+
+DallasCoRain_AQ1 <- left_join(TXOzoneDallas, DallasCoRain)  
+                              by = c("Date")
+
+DallasCoRain_AQ <- left_join(DallasCoRain_AQ1, TXPM25Dallas)  
+                              by = c("Date")
+
+DallasRainOzone.regression <- lm(
+  data = DallasCoRain_AQ,
+  Avg_Rain ~ Avg_AQI_Ozone)
+summary(DallasRainOzone.regression)
+
+DallasRainPM.regression <- lm(
+  data = DallasCoRain_AQ,
+  Avg_Rain ~ Avg_AQI_PM)
+summary(DallasRainPM.regression)
+
+```
+
+```{r}
+
+HarrisDallas <- rbind(HarrisCoRain_AQ, DallasCoRain_AQ)
+
+HarrisDallasRain.anova <- aov(data = HarrisDallas, Avg_Rain ~ County)
+summary(HarrisDallasRain.anova)
+
+HarrisDallasOzone.anova <- aov(data = HarrisDallas, Avg_AQI_Ozone ~ County)
+summary(HarrisDallasOzone.anova)
+
+HarrisDallasPM.anova <- aov(data = HarrisDallas, Avg_AQI_PM ~ County)
+summary(HarrisDallasPM.anova)
+
+```
+
+
+```{r}
+Rainplot<-HarrisCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_Rain))+
+  labs(
+    x="Date",
+    y="Rainfall (in)")+
+  geom_point(size=0.5)+
+  ggtitle('Harris County Rainfall 2019-2023')
+print(Rainplot)
+
+Rainplot2<-DallasCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_Rain))+
+  labs(
+    x="Date",
+    y="Rainfall (in)")+
+  geom_point(size=0.5)+
+  ggtitle('Dallas County Rainfall 2019-2023')
+print(Rainplot2)
+
+Ozoneplot<-HarrisCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_AQI_Ozone))+
+  labs(
+    x="Date",
+    y="Ozone AQI")+
+  geom_point(size=0.5)+
+  ggtitle('Harris County Ozone 2019-2023')
+print(Ozoneplot)
+
+Ozoneplot2<-DallasCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_AQI_Ozone))+
+  labs(
+    x="Date",
+    y="Ozone AQI")+
+  geom_point(size=0.5)+
+  ggtitle('Dallas County Ozone 2019-2023')
+print(Ozoneplot2)
+
+PMplot<-HarrisCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_AQI_PM))+
+  labs(
+    x="Date",
+    y="PM 2.5 AQI")+
+  geom_point(size=0.5)+
+  ggtitle('Harris County PM 2.5 2019-2023')
+print(PMplot)
+
+PMplot2<-DallasCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_AQI_PM))+
+  labs(
+    x="Date",
+    y="PM 2.5 AQI")+
+  geom_point(size=0.5)+
+  ggtitle('Dallas County PM 2.5 2019-2023')
+print(PMplot2)
+
+
+```
 
 
 
