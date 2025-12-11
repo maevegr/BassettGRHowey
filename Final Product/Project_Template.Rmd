@@ -72,6 +72,8 @@ This report examines how local conditions affect local air quality, focusing on 
 2) Is there a trend in air quality values and emissions over time in Harris county, Texas?
 3) Is there a relationship between precipitation and air quality in Harris county Texas?
 
+
+
 \newpage
 
 # Dataset Information
@@ -820,7 +822,7 @@ TX_emiss_O3_Harris <- inner_join(TXOzone_Harris, eGRID_PLNT_TX,
 \newpage
 
 
-The following plot shows the PM2.5 AQI over time, in Harris County, Texas. There is an overall trend of increasing PM2.5 AQI over the five-year period.
+Figure 5 following plot shows the PM2.5 AQI over time, in Harris County, Texas. There is an overall trend of increasing PM2.5 AQI over the five-year period.
 
 ```{r Q2_plot_PM25_AQI_over_time, echo=FALSE, warning = FALSE, fig.cap="Average daily PM2.5 AQI in Harris County, Texas, 2019-2023"}
 #Graph of PM2.5 AQI over time
@@ -1122,6 +1124,7 @@ print(PMplot2)
 # Summary and Conclusions
 
 The analysis of correlation between air quality and emissions at the county level per year did not result in significant results. There is not a significant correlation between annual county emission from power plants and average annual county AQI score from Ozone or PM2.5. Additionally, no county on average saw any poor or unsafe Air Quality Index levels. There are three potential factors influencing this lack of correlation. One is that air quality and emissions cannot be studied at localized scale. Likely emissions disperse out of the county it is in based on local weather patterns. Conducting analysis of local air quality based on power plant emissions might be more accurate if wind patterns were taken into consideration to estimate where emissions may be concentrating. Another reason is that topography plays a role in where emissions and particulates accumulate. For example, pollution commonly gets trapped in valleys. Therefore, including topography into the analysis might elucidate more clear patterns. Lastly, there may not be a correlation is because there are not enough data points in this analysis to see a trend. All plants do not report emissions and there are not air quality stations in all counties. To perform this analysis more accurately, data should be looked at country wide and there should be better standards for ensuring all active power plants report their emissions.
+\newline
 Ground level ozone is more likely to form in high heat and sunlight, when nitrogen oxides react with VOCs. This report mainly focused on total CO2 equivalent emissions. The emissions that are summed include SO2, CO2, CH4, and N2O.  Since all but methane are not VOCs, we thought it would be interesting to explore the relationship specifically between methane and ozone over time in one isolated location with abundant emissions and air quality data. As shown in Figure 6 and Figure 8, analysis of ozone AQI showed an increase from 2019-2023 in Harris county, Texas, while methane emissions decreased in that same time period. Our results did not indicate a positive relationship between methane and ozone. 
 
 \newpage
