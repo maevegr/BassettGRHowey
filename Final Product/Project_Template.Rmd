@@ -72,7 +72,7 @@ This report examines how local conditions affect local air quality, focusing on 
 2) Is there a trend in air quality values and emissions over time in Harris county, Texas?
 3) Is there a relationship between precipitation and air quality in Harris county Texas?
 
-![alt text](../Figures/GHGEmissions.png)
+![](../Figures/GHGEmissions.png)
 
 \newpage
 
