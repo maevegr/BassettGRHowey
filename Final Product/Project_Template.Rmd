@@ -18,7 +18,7 @@ editor_options:
 
 # Load your packages
 library(tidyverse);library(lubridate);library(here);library(sf);
-library(ggnewscale);library(patchwork)
+library(ggnewscale)
 here()
 
 # Set your ggplot theme
@@ -57,7 +57,22 @@ eGRID20_PLNT <- read.csv(here("Data/eGRID2020_Data_v2_PLNT.csv"),
 eGRID19_PLNT <- read.csv(here("Data/egrid2019_data_PLNT.csv"),
                          na.strings = c("", " ", "0")) %>% slice(-1) 
 
-#ADD PRECIPITATION
+#PRECIPITATION for each county was downloaded for 2019-2023. All stations in each county were combined for each day to calculated a daily county average rainfall value.
+
+HarrisCoRain <- read.csv(here("Data/HarrisCoRain.csv"))%>%
+  na.omit(PRCP)%>%
+  group_by(DATE) %>%
+  summarise(Avg_Rain = mean(PRCP))%>%
+  mutate(Date=mdy(DATE))%>%
+  select("Date","Avg_Rain")
+
+DallasCoRain <- read.csv(here("Data/DallasCoRain.csv"))%>%
+  na.omit(PRCP)%>%
+  group_by(DATE) %>%
+  summarise(Avg_Rain = mean(PRCP))%>%
+  mutate(Date=ymd(DATE))%>%
+  select("Date","Avg_Rain")
+
 ```
 
 
@@ -874,9 +889,9 @@ CH4.plot
     
 ```
 
+## Question 3: Is there a relationship between precipitation and air quality between and within the counties of Harris and Dallas in Texas?
 
-
-## Question 3: 
+Our third research question investigated the relationship between precipitation and air quality. Additionally, we looked spatially at two counties in Texas, Harris and Dallas, and provide comparative statistical analysis. From this data, we did not see a significant correlation between precipitation and AQI ozone nor precipitation and PM2.5 AQI. In comparing the two counties through two sample t-tests, no statistical difference in mean precipitation was seen at the 95% confidence level. However, mean Ozone and PM2.5 were seen to be different for the counties at the same confidence level.
 
 ```{r Data Import: Air Quality, include=FALSE}
 #TX only PM2.5
@@ -929,6 +944,9 @@ TXOzone_SB <- rbind(TXOzone19_SB, TXOzone20_SB, TXOzone21_SB, TXOzone22_SB, TXOz
 
 ```
 
+To investigate this questions, data was wrangled for PM2.5 and Ozone to reflect the date and daily value for each year. It was then combined into a data set for the full date range (2019-2023). This was combined again with daily average precipitation data. This dataset was then filtered by county providing one data set with date, precipitation, ozone, and PM2.5 data for Harris and one data set for Dallas. These were combined again for the two sample t-tests.
+
+Precipitation data was reported daily for most stations in the counties (83 in Harris and 44 in Dallas).
 
 ```{r include=FALSE}
 TXOzoneHarris <- TXOzone_SB %>%
@@ -965,6 +983,7 @@ HarrisRainPM.regression <- lm(
 summary(HarrisRainPM.regression)
                                                            
 ```
+
 
 ```{r include=FALSE}
 
@@ -1007,17 +1026,18 @@ summary(DallasRainPM.regression)
 
 HarrisDallas <- rbind(HarrisCoRain_AQ, DallasCoRain_AQ)
 
-HarrisDallasRain.anova <- aov(data = HarrisDallas, Avg_Rain ~ County)
-summary(HarrisDallasRain.anova)
+Rain.twosample <- t.test(HarrisDallas$Avg_Rain ~ HarrisDallas$County)
+Rain.twosample
 
-HarrisDallasOzone.anova <- aov(data = HarrisDallas, Avg_AQI_Ozone ~ County)
-summary(HarrisDallasOzone.anova)
+O3.twosample <- t.test(HarrisDallas$Avg_AQI_Ozone ~ HarrisDallas$County)
+O3.twosample
 
-HarrisDallasPM.anova <- aov(data = HarrisDallas, Avg_AQI_PM ~ County)
-summary(HarrisDallasPM.anova)
+PM.twosample <- t.test(HarrisDallas$Avg_AQI_PM ~ HarrisDallas$County)
+PM.twosample
 
 ```
 
+The graphs below provide a visual representation of the three considered environmental variables for Harris and Dallas County. A trend line is included to visualize general change over time.
 
 ```{r echo=FALSE, fig.height=4, message=FALSE, warning=FALSE}
 Rainplot<-HarrisCoRain_AQ%>%
@@ -1112,61 +1132,72 @@ print(PMplot2)
 
 ```
 
+A separate linear regression was performed for Harris county and Dallas county for precipitation vs ozone AQI and precipitation vs PM2.5 AQI to assess precipitation as an explanatory variable for air quality.
+
 Table: Linear Regression of Precipitation vs. Ozone Air Quality Harris County
 
 |Item | Value | 
 |-------:|:------|
-| P-value | 0.5239 |
-| R-squared | -0.0043 |
-| Degrees of Freedom |136 | 
+| P-value | 2.557e-07 |
+| R-squared | 0.01396 |
+| Degrees of Freedom |1819 | 
 
 Table: Linear Regression of Precipitation vs. PM2.5 Air Quality Harris County
 
 |Item | Value | 
 |-------:|:------|
-| P-value | 0.5239 |
-| R-squared | -0.0043 |
-| Degrees of Freedom |136 | 
+| P-value | 2.2e-16 |
+| R-squared | 0.06065 |
+| Degrees of Freedom |1819 | 
 
 Table: Linear Regression of Precipitation vs. Ozone Air Quality Dallas County 
 
 |Item | Value | 
 |-------:|:------|
-| P-value | 0.5239 |
-| R-squared | -0.0043 |
-| Degrees of Freedom |136 | 
+| P-value | 2.933e-07 |
+| R-squared | 0.01382 |
+| Degrees of Freedom |1818 | 
 
 Table: Linear Regression of Precipitation vs. PM2.5 Air Quality Dallas County 
 
 |Item | Value | 
 |-------:|:------|
-| P-value | 0.5239 |
-| R-squared | -0.0043 |
-| Degrees of Freedom |136 | 
+| P-value | 2.2e-16 |
+| R-squared | 0.0865 |
+| Degrees of Freedom |1778 | 
 
-Table: DallasHarris Anova Rain
+The tables above show that each of the four regressions returned a low p-value and a low r-squared value. This means that precipitation is not a good predictor for ozone AQI nor PM2.5 AQI in these two counties and the investigated time span.
 
-|Item | Value | 
-|-------:|:------|
-| P-value | 0.5239 |
-| R-squared | -0.0043 |
-| Degrees of Freedom |136 | 
+A two sample t-test was performed for Harris county and Dallas county to assess if the mean precipitation, ozone AQI, and PM2.5 AQI were the same or different for the two counties. 
 
-Table: DallasHarris Anova Ozone
+Null Hypothesis: mu1=mu2
+Alternative Hypothesis mu1!=mu2
 
-|Item | Value | 
-|-------:|:------|
-| P-value | 0.5239 |
-| R-squared | -0.0043 |
-| Degrees of Freedom |136 | 
-
-Table: DallasHarris Anova PM
+Table: Dallas vs Harris Two Sample T test Mean Precipitation
 
 |Item | Value | 
 |-------:|:------|
-| P-value | 0.5239 |
-| R-squared | -0.0043 |
-| Degrees of Freedom |136 | 
+| t-value | -2.1297 |
+| p-value | 0.03326 |
+| Degrees of Freedom |3610 | 
+
+Table: Dallas vs Harris Two Sample T test Mean AQI Ozone
+
+|Item | Value | 
+|-------:|:------|
+| t-value | 6.3494 |
+| p-value | 2.429e-10 |
+| Degrees of Freedom |3632.9 | 
+
+Table: Dallas vs Harris Two Sample T test Mean AQI PM2.5
+
+|Item | Value | 
+|-------:|:------|
+| t-value | -7.3386 |
+| p-value | 2.675e-13 |
+| Degrees of Freedom |3465.7 |  
+
+For all the variables (precipitation, ozone AQI, and PM2.5 AQI), the two sample t tests returned p-values less than 0.05. This supports the alternative hypothesis that there is a statistically significant difference in the means of these variables between the two counties.
 
 \newpage
 
@@ -1174,7 +1205,6 @@ Table: DallasHarris Anova PM
 
 The analysis of correlation between air quality and emissions at the county level per year did not result in significant results. There is not a significant correlation between annual county emission from power plants and average annual county AQI score from Ozone or PM2.5. Additionally, no county on average saw any poor or unsafe Air Quality Index levels. There are two potential factors influencing this lack of correlation. One is that air quality and emissions cannot be studied at localized scale. Likely emissions disperse out of the county it is in based on local weather patterns. Conducting analysis of local air quality based on power plant emissions might be more accurate if wind patterns were taken into consideration to estimate where emissions may be concentrating. Another reason there may not be a correlation is because there are not enough data points in this analysis to see a trend. All plants do not report emissions and there are not air quality stations in all counties. To perform this analysis more accurately, data should be looked at country wide and there should be better standards for ensuring all active power plants report their emissions.
 
-\newpage
+In the case of precipitation, the data did not show this variable to be explanatory to the ozone or PM2.5 AQI at a statistically significant level for these counties and the time frame of interest. However, the mean precipitation, ozone AQI, and PM2.5 AQI were found to be different between Harris and Dallas at an alpha level of 0.05. This is surprising in some ways, as some pollutants can partition into water droplets as in rains and subsequently improve air quality. Additionally, rainfall can be associated with wind as a co-variable which may also be expected to improve air quality by diluting pollution through mixing. It would be interesting to investigate if these trends told true on a larger analysis scope such as looking at more counties in Texas, looking at the state level nationally, or looking at a large time span. The difference in mean precipitation, ozone AQI, and PM2.5 AQI levels between the counties makes sense because Harris County is located on the gulf of Mexico while Dallas county is in northeast Texas further inland so it is expected to see differences in climate and air movement. This investigation does not provide insight as to whether location is a causative variable or if there is another reason for this difference, such as industrial production levels between the counties. This would be another interesting direction for future research.
 
-# References
-<add references here if relevant, otherwise delete this section> 
+
