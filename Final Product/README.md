@@ -8,7 +8,7 @@ ENV 872 Course Project: Sara Bassett, Xia Meng Howey, Maeve Gualtieri-Reed
 
 # Summary
 These datasets were prepared for ENV 872 in Fall 2025 by Sara Bassett, Xia Meng Howey, Maeve Gualtieri-Reed.
-The datasets included are Air Quality Data in Texas from 2019 to 2023, eGRID annual reports from 2019 to 2023 and *INSERT PRECIPITATION*
+The datasets included are Air Quality Data in Texas from 2019 to 2023, eGRID annual reports from 2019 to 2023 and precipitation data from Harris and Dallas county from NOAA for 2019-2023.
 
 # Database information
 
@@ -113,7 +113,17 @@ Plant.annual.Hg.emissions..lbs: Total annual Hg emissions estimated for the plan
 
 
 ## Precipitation data
+Data was downloaded here: https://www.ncdc.noaa.gov/cdo-web/
+The following selections were made: 
+* Select Weather Observation Type/Dataset: Daily Summaries
+* Select Date Range: 01/01/2019 - 12/31/2023
+* Search For: Counties
+* Search Term: Harris, TX and Dallas, TX
+* Download CSV (spreadsheet)
 
+Saved in the following format: CountyCoRain.csv 
+
+Date: 12/03/2025
 
 
 
