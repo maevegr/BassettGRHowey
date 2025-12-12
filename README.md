@@ -135,4 +135,4 @@ The following selections were made:
 Saved in the following format: CountyCoRain.csv 
 
 ## Folder structure, file formats, and naming conventions 
-All raw data is stored in \BassetGRHowey\Data and wrangled directly in this file. Code fragments are stored in \BassetGRHowey\Rmd and the final complete code, called TexasEmissionsAQI.Rmd is stored \BassetGRHowey\FinalProduct. The final knitted pdf version of this .Rmd is in the same folder called TexasEmissionsAQI.pdf. The source image used in the report is stored in \BassetGRHowey\Figures.
+All raw data is stored in \BassetGRHowey\Data and wrangled directly in this file. Code fragments are stored in \BassetGRHowey\Rmd and the final complete code, called BassetGRHowey_ENV872_Project.Rmd is stored \BassetGRHowey\FinalProduct. The final knitted pdf version of this .Rmd is in the same folder called BassetGRHowey_ENV872_Project.pdf. The source image used in the report is stored in \BassetGRHowey\Figures.
