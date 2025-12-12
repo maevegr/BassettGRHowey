@@ -38,12 +38,12 @@ State, County, Site.Latitude, Site.Longitude are self explanatory
 Date: m/d/y
 
 Daily.AQI.Value: Air quality rating value
-*0-50: Good
-*51-100: Moderate
-*101-150: Unhealthy for sensitive groups
-*151-200: Unhealthy
-*201-300: Very unhealthy
-*301-500: Hazardous
+* 0-50: Good
+* 51-100: Moderate
+* 101-150: Unhealthy for sensitive groups
+* 151-200: Unhealthy
+* 201-300: Very unhealthy
+* 301-500: Hazardous
 
 AQS.Parameter.Description: Type of pollutant (Ozone or PM2.5)
 
@@ -56,56 +56,57 @@ Local.Site.Name: Name of monitor site
 "PLNT" tab was extracted and converted to .csv. Formatting was cleared to ensure numeric values were imported correctly
 
 Saved according to the downloaded data name + "_PLNT"
-*egrid2019_data_PLNT.csv
-*eGRID2020_Data_v2_PLNT.csv
-*eGRID2021_data_PLNT.csv
-*egrid2022_data_PLNT.csv
-*egrid2023_data_rev2_PLNT.csv
+* egrid2019_data_PLNT.csv
+* eGRID2020_Data_v2_PLNT.csv
+* eGRID2021_data_PLNT.csv
+* egrid2022_data_PLNT.csv
+* egrid2023_data_rev2_PLNT.csv
 
 Data.Year, Plant.state.abbreviation, Plant.county.name, Plant.latitude, Plant.longitude are self explanatory
 
 Plant.name: Name of plant reporting
 
 Plant.primary.fuel: Primary fuel to power the plant. Information found in the eGRID 2023 Technical Guide (https://www.epa.gov/system/files/documents/2025-01/egrid2023_technical_guide.pdf)
-*AB = Agricultural byproduct
-*BFG = Blast furnace gas
-*BIT = Bituminous coal
-*BLQ = Black liquor
-*COG = Coke oven gas
-*DFO = Distillate fuel oil, light fuel oil, diesel oil
-*GEO = Geothermal steam
-*H2 = Hydrogen
-*JF = Jet fuel
-*KER = Kerosene
-*LFG = Landfill gas
-*LIG = Lignite coal
-*MSW = Municipal solid waste
-*MWH = Electricity used for energy storage (megawatt hour)
-*NG = Natural gas
-*NUC = Nuclear material
-*OBG = Other biomass gas
-*OBL = Other biomass liquid
-*OBS = Other biomass solid
-*OG = Other gas
-*OTH = Other (unknown)
-*PC = Petroleum coke
-*PG = Gaseous propane
-*PRG = Process gas
-*PUR = Purchased fuel (unknown)
-*RC = Refined coal
-*RFO = Residual fuel oil, heavy fuel oil, petroleum
-*SGC = Coal-derived synthetic gas
-*SLW = Sludge waste
-*SUB = Subbituminous coal
-*SUN = Sun
-*TDF = Tire-derived fuel
-*WAT = Water
-*WC = Waste coal
-*WDL = Wood, wood waste liquid
-*WDS = Wood, wood waste solid
-*WH = Waste heat
-*WND = Wind
-*WO = Waste oil
+
+* AB = Agricultural byproduct
+* BFG = Blast furnace gas
+* BIT = Bituminous coal
+* BLQ = Black liquor
+* COG = Coke oven gas
+* DFO = Distillate fuel oil, light fuel oil, diesel oil
+* GEO = Geothermal steam
+* H2 = Hydrogen
+* JF = Jet fuel
+* KER = Kerosene
+* LFG = Landfill gas
+* LIG = Lignite coal
+* MSW = Municipal solid waste
+* MWH = Electricity used for energy storage (megawatt hour)
+* NG = Natural gas
+* NUC = Nuclear material
+* OBG = Other biomass gas
+* OBL = Other biomass liquid
+* OBS = Other biomass solid
+* OG = Other gas
+* OTH = Other (unknown)
+* PC = Petroleum coke
+* PG = Gaseous propane
+* PRG = Process gas
+* PUR = Purchased fuel (unknown)
+* RC = Refined coal
+* RFO = Residual fuel oil, heavy fuel oil, petroleum
+* SGC = Coal-derived synthetic gas
+* SLW = Sludge waste
+* SUB = Subbituminous coal
+* SUN = Sun
+* TDF = Tire-derived fuel
+* WAT = Water
+* WC = Waste coal
+* WDL = Wood, wood waste liquid
+* WDS = Wood, wood waste solid
+* WH = Waste heat
+* WND = Wind
+* WO = Waste oil
 
 Plant.annual.NOx.emissions..tons: Total annual NOx emissions estimated for the plant in tons. Methods for estimation found in the eGRID 2023 Technical Guide (https://www.epa.gov/system/files/documents/2025-01/egrid2023_technical_guide.pdf)
 
