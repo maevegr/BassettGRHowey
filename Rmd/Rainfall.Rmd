@@ -1,5 +1,10 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 ```{r setup, include=FALSE}
-library(tidyverse);library(lubridate);library(here);library(cowplot);library(dplyr);library(ggplot2)
+library(tidyverse);library(lubridate);library(here);library(cowplot);library(dplyr);library(ggplot2);library(patchwork)
 here()
 ```
 
@@ -160,67 +165,172 @@ Rainplot<-HarrisCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_Rain))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="Rainfall (in)")+
   geom_point(size=0.5)+
+  theme(plot.title = element_text(size = 11))+
   ggtitle('Harris County Rainfall 2019-2023')
+
+Rainplot2<-DallasCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_Rain))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
+  labs(
+    x="Date",
+    y="Rainfall (in)")+
+  geom_point(size=0.5)+
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Dallas County Rainfall 2019-2023')
+
+Ozoneplot<-HarrisCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_AQI_Ozone))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
+  labs(
+    x="Date",
+    y="Ozone AQI")+
+  geom_point(size=0.5)+
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Harris County Ozone 2019-2023')
+
+Ozoneplot2<-DallasCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_AQI_Ozone))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
+  labs(
+    x="Date",
+    y="Ozone AQI")+
+  geom_point(size=0.5)+
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Dallas County Ozone 2019-2023')
+
+PMplot<-HarrisCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_AQI_PM))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
+  labs(
+    x="Date",
+    y="PM 2.5 AQI")+
+  geom_point(size=0.5)+
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Harris County PM 2.5 2019-2023')
+
+PMplot2<-DallasCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_AQI_PM))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
+  labs(
+    x="Date",
+    y="PM 2.5 AQI")+
+  geom_point(size=0.5)+
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Dallas County PM 2.5 2019-2023')
+
+
+(Rainplot + Rainplot2) /
+  (Ozoneplot + Ozoneplot2) /
+    (PMplot + PMplot2)
+```
+
+```{r echo=FALSE, fig.height=4, message=FALSE}
+
+Rainplot<-HarrisCoRain_AQ%>%
+  ggplot(aes(
+    x=Date,
+    y=Avg_Rain))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
+  labs(
+    x="Date",
+    y="Rainfall (in)")+
+  ylim(0,5)+
+  geom_point(size=0.5)+
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Harris County Rainfall 2019-2023')+
+  geom_smooth(method = "lm")
 print(Rainplot)
 
 Rainplot2<-DallasCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_Rain))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="Rainfall (in)")+
+  ylim(0,5)+
   geom_point(size=0.5)+
-  ggtitle('Dallas County Rainfall 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Dallas County Rainfall 2019-2023')+
+  geom_smooth(method = "lm")
 print(Rainplot2)
 
 Ozoneplot<-HarrisCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_AQI_Ozone))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="Ozone AQI")+
+  ylim(0,150)+
   geom_point(size=0.5)+
-  ggtitle('Harris County Ozone 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Harris County Ozone 2019-2023')+
+  geom_smooth(method = "lm")
 print(Ozoneplot)
 
 Ozoneplot2<-DallasCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_AQI_Ozone))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="Ozone AQI")+
+  ylim(0,150)+
   geom_point(size=0.5)+
-  ggtitle('Dallas County Ozone 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Dallas County Ozone 2019-2023')+
+  geom_smooth(method = "lm")
 print(Ozoneplot2)
 
 PMplot<-HarrisCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_AQI_PM))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="PM 2.5 AQI")+
+  ylim(0,150)+
   geom_point(size=0.5)+
-  ggtitle('Harris County PM 2.5 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Harris County PM 2.5 2019-2023')+
+  geom_smooth(method = "lm")
 print(PMplot)
 
 PMplot2<-DallasCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_AQI_PM))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="PM 2.5 AQI")+
+  ylim(0,150)+
   geom_point(size=0.5)+
-  ggtitle('Dallas County PM 2.5 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Dallas County PM 2.5 2019-2023')+
+  geom_smooth(method = "lm")
 print(PMplot2)
 
 
 ```
+

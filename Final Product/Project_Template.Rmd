@@ -1,11 +1,7 @@
 ---
-title: 'Comparing Texas Emissions and Rainfall with Air Quality'
-subtitle: 'https://github.com/maevegr/BassettGRHowey'
-author: 'Sara Bassett, Maeve Gualtieri-Reed, Xia Meng Howey'
-date: 'December 12, 2025'
 output:
-  pdf_document:
-    fig_caption: true
+  pdf_document: default
+  html_document: default
 editor_options:
   chunk_output_type: console
 ---
@@ -22,7 +18,7 @@ editor_options:
 
 # Load your packages
 library(tidyverse);library(lubridate);library(here);library(sf);
-library(ggnewscale);library(cowplot)
+library(ggnewscale);library(patchwork)
 here()
 
 # Set your ggplot theme
@@ -70,21 +66,19 @@ This report examines how local conditions affect local air quality, focusing on 
 
 1) Is there a correlation between county level emission levels from power plants and county air quality in Texas?
 2) Is there a trend in air quality values and emissions over time in Harris county, Texas?
-3) Is there a relationship between precipitation and air quality in Harris county Texas?
-
-![](../Figures/GHGEmissions.png)
+3) Is there a relationship between precipitation and air quality between and within the counties of Harris and Dallas in Texas?
 
 \newpage
 
 # Dataset Information
 
-This report analyzes three sources of data: EPA Air Quality, Emissions & Generation Resource Integrated Database (eGRID), and *INSERT PRECIPITATION DATA*
+This report analyzes three sources of data: EPA Air Quality, Emissions & Generation Resource Integrated Database (eGRID), and National Oceanic and Atmospheric Administration
 
 EPA Air Quality Data is collected at local monitors across the United States. It can be downloaded by pollutant type, region, and year. This report uses data for Texas between 2018 and 2023 for PM2.5 and Ozone. PM2.5 and Ozone are two criteria pollutants that can cause respiratory issues, especially for people with pre-existing health conditions, children, and seniors. The AQI based on PM2.5 and Ozone are recorded separately and range on a scale from 0-500, with higher values being more dangerous. Values 0-50 indicate "Good" AQ, 50 - 100 "Moderate", and increasingly poor from there. For more information about Air Quality Index and criteria pollutants, visit https://www.epa.gov/outdoor-air-quality-data/air-data-basic-information
 
 eGRID data is released annually and contains information for all power plants across the United States. It contains information about generation, age of the plant, fuel type, and emissions, including CO2 Equivalent emissions. This report uses the eGRID 2018 - 2023 annual reports and focuses only on Texas power plants. 
 
-*INSERT SOMETHING ABOUT PRECIPITATION DATA*
+The National Oceanic and Atmospheric Administration provides public data via the National Centers for Environmental Information. The information pulled for this report included precipitation data in inches from 44 monitoring stations in Dallas county and 83 monitoring stations in Harris county. The dates spanned 2019 - 2023.
 
 \newpage
 
@@ -462,7 +456,7 @@ ggplot() +
            subtitle="2018 - 2023")
 ```
 
-\newpage
+
 ### Are annual county emissions correlated with annual county air quality?
 The following graphs and tables show the relationship between total annual county emissions and average annual county air quality. A linear regression was run on the data to determine if the relationship has a significant correlation. Harris County data points are highlighted.
 
@@ -535,12 +529,9 @@ Table: Linear Regression of Emissions vs. PM2.5 Air Quality
 | R-squared | -0.0025 |
 | Degrees of Freedom |125 | 
 
-\newpage
-## Question 2: Is there a trend in air quality values and emissions over time in Harris county, Texas? 
 
-After analyzing the relationship between total CO2 equivalent emissions and AQI in PM2.5 and Ozone, we found no statistical correlation between either. To further investigate from a different approach and look at temporal trends, we focused on one area, Harris county, due to its high number of both emissions and air quality monitor data. This is shown in the Figure 2 map as the concentrated area in the southeastern part of Texas. In addition to analyzing CO2 equivalent emissions, methane emissions were analyzed. Unlike CO2, SO2, N2O which are all summed to calculate the total CO2 equivalent emissions, methane is a volatile organic compound (VOC) which can react with nitrogen oxides and sunlight to form tropospheric ozone. We wanted to test among these greenhouse gases, if methane specifically has a relationship with AQI.
-
-```{r Wrangle eGRID data, include = FALSE}
+## Question 2: 
+```{r Wrangle eGRID data, eval=TRUE, echo=FALSE}
 eGRID23_PLNT <- eGRID23_PLNT %>% 
   #slice(-1) %>% 
   mutate(Data.Year=as.Date(paste0(Data.Year, "-01-01"))) %>% 
@@ -708,7 +699,7 @@ eGRID_PLNT_TX <- filter(eGRID_PLNT_US,Plant.state.abbreviation == "TX" ) %>%
   rename(County = Plant.county.name) 
 ```
 
-```{r Wrangle Air Quality: PM2.5, include = FALSE}
+```{r Wrangle Air Quality: PM2.5, eval=TRUE, echo=FALSE}
 #Texas PM2.5 for each year. Formatted into yearly rather than daily data
 TXPM2523 <- TXPM2523 %>% 
   mutate(Date=mdy(Date)) %>% 
@@ -760,7 +751,7 @@ TXPM25_Harris <- TXPM25 %>%
 ```
 
 
-```{r Data Import: Air Quality: Ozone, include=FALSE}
+```{r Data Import: Air Quality: Ozone, , eval=TRUE, echo=FALSE}
 #Texas Ozone for each year. Formatted into yearly rather than daily data
 TXOzone23 <- TXOzone23 %>% 
   mutate(Date=mdy(Date)) %>% 
@@ -810,7 +801,7 @@ TXOzone_Harris <- TXOzone %>%
   filter(County == "Harris")
 ```
 
-```{r Wrangling: Emissions and AQI, include=FALSE}
+```{r Wrangling: Emissions and AQI, , eval=TRUE, echo=FALSE}
 #Annual average AQI (PM2.5/Ozone) and 
 #emissions (CO2 equiv/CH4) in Harris county, TX
 TX_emiss_PM25_Harris <- inner_join(TXPM25_Harris, eGRID_PLNT_TX,
@@ -819,12 +810,8 @@ TX_emiss_PM25_Harris <- inner_join(TXPM25_Harris, eGRID_PLNT_TX,
 TX_emiss_O3_Harris <- inner_join(TXOzone_Harris, eGRID_PLNT_TX,
                                  by = c("Date", "County"))
 ```
-\newpage
 
-
-Figure 5 following plot shows the PM2.5 AQI over time, in Harris County, Texas. There is an overall trend of increasing PM2.5 AQI over the five-year period.
-
-```{r Q2_plot_PM25_AQI_over_time, echo=FALSE, warning = FALSE, fig.cap="Average daily PM2.5 AQI in Harris County, Texas, 2019-2023"}
+```{r Q2 plots, eval=TRUE, echo=FALSE}
 #Graph of PM2.5 AQI over time
 PM25.plot <- TX_emiss_PM25_Harris %>% 
   ggplot(
@@ -833,19 +820,13 @@ PM25.plot <- TX_emiss_PM25_Harris %>%
       y = Avg_AQI_PM25
     )
   )+
-  geom_point(color = "red",
-             size = 3)+
+  geom_point()+
   xlab("Time")+
-  ylab("AQI")
+  ylab("AQI")+
+  ggtitle("Average daily PM2.5 AQI", 
+          subtitle = "Harris County, Texas, 2019 - 2023")
 PM25.plot
-```
 
-\newpage
-
-
-Figure 6 shows the ozone AQI over time in Harris County, Texas. There is an overall trend of increasing ozone AQI over the five-year period.
-
-```{r Q2_plot_Ozone_AQI_over_time, echo=FALSE, fig.cap="Average daily ozone AQI in Harris County, Texas, 2019-2023"}
 #Graph of Ozone AQI  over time
 O3.plot <- TX_emiss_O3_Harris %>%
   ggplot(
@@ -854,19 +835,13 @@ O3.plot <- TX_emiss_O3_Harris %>%
       y = Avg_AQI_Ozone
     )
   )+
-  geom_point(color = "blue",
-             size = 3)+
+  geom_point()+
   xlab("Time")+
-  ylab("AQI")
+  ylab("AQI")+
+  ggtitle("Average daily ozone AQI", 
+          subtitle = "Harris County, Texas, 2019 - 2023")
 O3.plot
-```
-
-\newpage
-
-
-Figure 7 shows the CO2 equivalent emissions over time in Harris County, Texas. There is an overall trend of decreasing CO2 equivalent emissions over the five-year period. The opposite trend of what occurred for PM2.5 and ozone AQI.
-
-```{r Q2 plot: CO2e emissions over time, echo=FALSE, fig.cap="Annual CO2 equivalent in Harris County, Texas, 2019-2023"}
+  
 #Graph of CO2e emissions over time
 CO2e.plot <- TX_emiss_O3_Harris %>%
   ggplot(
@@ -875,19 +850,13 @@ CO2e.plot <- TX_emiss_O3_Harris %>%
       y = CO2_Equiv
     )
   )+
-  geom_point(color = "green",
-             size = 3)+
+  geom_point()+
   xlab("Time")+
-  ylab("CO2 Equivalent (ton)")
+  ylab("CO2 Equivalent (ton)")+
+  ggtitle(expression("Annual CO"[2] * "equivalent"), 
+          subtitle = "Harris County, Texas, 2019 - 2023")
 CO2e.plot
-```
-
-\newpage
-
-
-Figure 8 shows the methane equivalent emissions over time in Harris County, Texas. There is an overall trend of decreasing methane emissions over the five-year period. The opposite trend of what occurred for PM2.5 and ozone AQI.
-
-```{r Q2 plot: CH4 emissions over time, echo=FALSE, fig.cap="Annual methane emissions in Harris County, Texas, 2019-2023"}
+    
 #Graph of CH4 emissions over time
 CH4.plot <- TX_emiss_O3_Harris %>%
   ggplot(
@@ -896,17 +865,20 @@ CH4.plot <- TX_emiss_O3_Harris %>%
       y = Annual_CH4_lb
     )
   )+
-  geom_point(color = "orange",
-             size = 3)+
+  geom_point()+
   xlab("Time")+
-  ylab("CH4 Emissions (lb)")
+  ylab("CH4 Emissions (lb)")+
+  ggtitle("Annual methane emissions", 
+          subtitle = "Harris County, Texas, 2019 - 2023")
 CH4.plot
+    
 ```
 
-\newpage
+
+
 ## Question 3: 
 
-```{r Data Import: Air Quality}
+```{r Data Import: Air Quality, include=FALSE}
 #TX only PM2.5
 TXPM2523_SB <- read.csv(here("Data/TXPM2523.csv")) %>% 
   mutate(Date=mdy(Date)) %>% 
@@ -958,7 +930,7 @@ TXOzone_SB <- rbind(TXOzone19_SB, TXOzone20_SB, TXOzone21_SB, TXOzone22_SB, TXOz
 ```
 
 
-```{r}
+```{r include=FALSE}
 TXOzoneHarris <- TXOzone_SB %>%
   filter(County == 'Harris')%>%
   group_by(Date) %>%
@@ -994,7 +966,7 @@ summary(HarrisRainPM.regression)
                                                            
 ```
 
-```{r}
+```{r include=FALSE}
 
 TXOzoneDallas <- TXOzone_SB %>%
   filter(County == 'Dallas')%>%
@@ -1031,7 +1003,7 @@ summary(DallasRainPM.regression)
 
 ```
 
-```{r}
+```{r include=FALSE}
 
 HarrisDallas <- rbind(HarrisCoRain_AQ, DallasCoRain_AQ)
 
@@ -1047,85 +1019,160 @@ summary(HarrisDallasPM.anova)
 ```
 
 
-```{r}
+```{r echo=FALSE, fig.height=4, message=FALSE, warning=FALSE}
 Rainplot<-HarrisCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_Rain))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="Rainfall (in)")+
+  ylim(0,5)+
   geom_point(size=0.5)+
-  ggtitle('Harris County Rainfall 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Harris County Rainfall 2019-2023')+
+  geom_smooth(method = "lm")
 print(Rainplot)
 
 Rainplot2<-DallasCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_Rain))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="Rainfall (in)")+
+  ylim(0,5)+
   geom_point(size=0.5)+
-  ggtitle('Dallas County Rainfall 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Dallas County Rainfall 2019-2023')+
+  geom_smooth(method = "lm")
 print(Rainplot2)
 
 Ozoneplot<-HarrisCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_AQI_Ozone))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="Ozone AQI")+
+  ylim(0,150)+
   geom_point(size=0.5)+
-  ggtitle('Harris County Ozone 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Harris County Ozone 2019-2023')+
+  geom_smooth(method = "lm")
 print(Ozoneplot)
 
 Ozoneplot2<-DallasCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_AQI_Ozone))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="Ozone AQI")+
+  ylim(0,150)+
   geom_point(size=0.5)+
-  ggtitle('Dallas County Ozone 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Dallas County Ozone 2019-2023')+
+  geom_smooth(method = "lm")
 print(Ozoneplot2)
 
 PMplot<-HarrisCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_AQI_PM))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="PM 2.5 AQI")+
+  ylim(0,150)+
   geom_point(size=0.5)+
-  ggtitle('Harris County PM 2.5 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Harris County PM 2.5 2019-2023')+
+  geom_smooth(method = "lm")
 print(PMplot)
 
 PMplot2<-DallasCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_AQI_PM))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="PM 2.5 AQI")+
+  ylim(0,150)+
   geom_point(size=0.5)+
-  ggtitle('Dallas County PM 2.5 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  ggtitle('Dallas County PM 2.5 2019-2023')+
+  geom_smooth(method = "lm")
 print(PMplot2)
-
 
 ```
 
+Table: Linear Regression of Precipitation vs. Ozone Air Quality Harris County
 
+|Item | Value | 
+|-------:|:------|
+| P-value | 0.5239 |
+| R-squared | -0.0043 |
+| Degrees of Freedom |136 | 
+
+Table: Linear Regression of Precipitation vs. PM2.5 Air Quality Harris County
+
+|Item | Value | 
+|-------:|:------|
+| P-value | 0.5239 |
+| R-squared | -0.0043 |
+| Degrees of Freedom |136 | 
+
+Table: Linear Regression of Precipitation vs. Ozone Air Quality Dallas County 
+
+|Item | Value | 
+|-------:|:------|
+| P-value | 0.5239 |
+| R-squared | -0.0043 |
+| Degrees of Freedom |136 | 
+
+Table: Linear Regression of Precipitation vs. PM2.5 Air Quality Dallas County 
+
+|Item | Value | 
+|-------:|:------|
+| P-value | 0.5239 |
+| R-squared | -0.0043 |
+| Degrees of Freedom |136 | 
+
+Table: DallasHarris Anova Rain
+
+|Item | Value | 
+|-------:|:------|
+| P-value | 0.5239 |
+| R-squared | -0.0043 |
+| Degrees of Freedom |136 | 
+
+Table: DallasHarris Anova Ozone
+
+|Item | Value | 
+|-------:|:------|
+| P-value | 0.5239 |
+| R-squared | -0.0043 |
+| Degrees of Freedom |136 | 
+
+Table: DallasHarris Anova PM
+
+|Item | Value | 
+|-------:|:------|
+| P-value | 0.5239 |
+| R-squared | -0.0043 |
+| Degrees of Freedom |136 | 
 
 \newpage
 
 # Summary and Conclusions
 
-The analysis of correlation between air quality and emissions at the county level per year did not result in significant results. There is not a significant correlation between annual county emission from power plants and average annual county AQI score from Ozone or PM2.5. Additionally, no county on average saw any poor or unsafe Air Quality Index levels. There are three potential factors influencing this lack of correlation. One is that air quality and emissions cannot be studied at localized scale. Likely emissions disperse out of the county it is in based on local weather patterns. Conducting analysis of local air quality based on power plant emissions might be more accurate if wind patterns were taken into consideration to estimate where emissions may be concentrating. Another reason is that topography plays a role in where emissions and particulates accumulate. For example, pollution commonly gets trapped in valleys. Therefore, including topography into the analysis might elucidate more clear patterns. Lastly, there may not be a correlation is because there are not enough data points in this analysis to see a trend. All plants do not report emissions and there are not air quality stations in all counties. To perform this analysis more accurately, data should be looked at country wide and there should be better standards for ensuring all active power plants report their emissions.
-\newline
-Ground level ozone is more likely to form in high heat and sunlight, when nitrogen oxides react with VOCs. This report mainly focused on total CO2 equivalent emissions. The emissions that are summed include SO2, CO2, CH4, and N2O.  Since all but methane are not VOCs, we thought it would be interesting to explore the relationship specifically between methane and ozone over time in one isolated location with abundant emissions and air quality data. As shown in Figure 6 and Figure 8, analysis of ozone AQI showed an increase from 2019-2023 in Harris county, Texas, while methane emissions decreased in that same time period. Our results did not indicate a positive relationship between methane and ozone. 
+The analysis of correlation between air quality and emissions at the county level per year did not result in significant results. There is not a significant correlation between annual county emission from power plants and average annual county AQI score from Ozone or PM2.5. Additionally, no county on average saw any poor or unsafe Air Quality Index levels. There are two potential factors influencing this lack of correlation. One is that air quality and emissions cannot be studied at localized scale. Likely emissions disperse out of the county it is in based on local weather patterns. Conducting analysis of local air quality based on power plant emissions might be more accurate if wind patterns were taken into consideration to estimate where emissions may be concentrating. Another reason there may not be a correlation is because there are not enough data points in this analysis to see a trend. All plants do not report emissions and there are not air quality stations in all counties. To perform this analysis more accurately, data should be looked at country wide and there should be better standards for ensuring all active power plants report their emissions.
 
 \newpage
 
