@@ -1,6 +1,6 @@
 ---
 title: 'Comparing Texas Emissions and Rainfall with Air Quality'
-subtitle: 'https://github.com/maevegr/BassettGRHowey'
+subtitle: '<https://github.com/maevegr/BassettGRHowey>'
 author: 'Sara Bassett, Maeve Gualtieri-Reed, Xia Meng Howey'
 date: 'December 12, 2025'
 output:
