@@ -22,7 +22,7 @@ editor_options:
 
 # Load your packages
 library(tidyverse);library(lubridate);library(here);library(sf);
-library(ggnewscale);library(cowplot)
+library(ggnewscale);library(cowplot);library(viridis)
 here()
 
 # Set your ggplot theme
@@ -78,13 +78,13 @@ This report examines how local conditions affect local air quality, focusing on 
 
 # Dataset Information
 
-This report analyzes three sources of data: EPA Air Quality, Emissions & Generation Resource Integrated Database (eGRID), and *INSERT PRECIPITATION DATA*
+This report analyzes three sources of data: EPA Air Quality, Emissions & Generation Resource Integrated Database (eGRID), and National Oceanic and Atmospheric Administration via National Centers for Environmental Information.
 
 EPA Air Quality Data is collected at local monitors across the United States. It can be downloaded by pollutant type, region, and year. This report uses data for Texas between 2018 and 2023 for PM2.5 and Ozone. PM2.5 and Ozone are two criteria pollutants that can cause respiratory issues, especially for people with pre-existing health conditions, children, and seniors. The AQI based on PM2.5 and Ozone are recorded separately and range on a scale from 0-500, with higher values being more dangerous. Values 0-50 indicate "Good" AQ, 50 - 100 "Moderate", and increasingly poor from there. For more information about Air Quality Index and criteria pollutants, visit https://www.epa.gov/outdoor-air-quality-data/air-data-basic-information
 
 eGRID data is released annually and contains information for all power plants across the United States. It contains information about generation, age of the plant, fuel type, and emissions, including CO2 Equivalent emissions. This report uses the eGRID 2018 - 2023 annual reports and focuses only on Texas power plants. 
 
-*INSERT SOMETHING ABOUT PRECIPITATION DATA*
+The National Oceanic and Atmospheric Administration provides public data via the National Centers for Environmental Information. The information pulled for this report included precipitation data in inches from 44 monitoring stations in Dallas county and 83 monitoring stations in Harris county. The dates spanned 2019 - 2023.
 
 \newpage
 
@@ -417,11 +417,12 @@ PM25_Locations <- st_as_sf(TXPM25_locations,
 
 ```
 
+\newpage
 ### How often is emissions data reported?
 
 The following map displays all the plants referenced in at least one of the eGRID reports between 2019 and 2023. Not all plants listed in eGRID report CO2 equivalence. The plants that reported at some point in the 5 years are in blue. Plants that are listed in a least one of the eGRID reports but never report CO2 emissions (or have zero emissions) are in black.
 
-```{r Q1 Map1, echo=FALSE, warning=FALSE, f.align = "left", fig.cap="Listed and Emissions Reporting Texas Power Plants"}
+```{r Q1 Map1, echo=FALSE, warning=FALSE, f.align = "left", fig.cap="Listed and Emissions Reporting Texas Power Plants. 2019 - 2023 eGRID reports."}
 #Map of reporting and not reporting Texas plants
 ggplot()+
   geom_sf(data = Texas_Counties)+
@@ -434,16 +435,16 @@ ggplot()+
   geom_sf(data = Plant_Locations, aes(color = "Emissions Reporting Plants"), 
           size = 0.5)+
   scale_color_manual(name = "", 
-                     values = c("Emissions Reporting Plants" = "Blue"))+
-  ggtitle("Listed and Emissions Reporting Texas Power Plants", 
-          subtitle="2018 - 2023 eGRID Reports")
+                     values = c("Emissions Reporting Plants" = "Blue"))
 
 ```
+
+\newpage
 
 ### How are air quality stations spatially located compared to emissions reporting power plants?
 The following map shows how plants and EPA air quality monitors are spatially related. Not all counties have both an air quality monitor and at least one CO2 equivalence reporting plant. Only counties reporting both at some point between 2019 and 2023 are included in the statistical analysis below.
 
-```{r Q1 Map2, echo=FALSE, warning=FALSE, fig.cap = "Air Quality Monitors & Annual Emissions from Power Plants and in Texas"}
+```{r Q1 Map2, echo=FALSE, warning=FALSE, fig.cap = "Air Quality Monitors & Annual Emissions from Power Plants and in Texas, 2019 - 2023."}
 #Map of reporting Texas plants and ozone/PM2.5 monitors
 ggplot() +
   geom_sf(data = Texas_Counties)+
@@ -456,17 +457,14 @@ ggplot() +
   scale_color_manual(name = "Air Quality Monitor Type", 
                      values = c("PM2.5 Monitor" = "Green"))+
   new_scale_color()+
-  labs(size="Average Annual CO2 Equivalent (tons)")+
-  ggtitle(
-    "Air Quality Monitors & Annual Emissions from Power Plants and in Texas",
-           subtitle="2018 - 2023")
+  labs(size="Average Annual CO2 Equivalent (tons)")
 ```
 
 \newpage
 ### Are annual county emissions correlated with annual county air quality?
 The following graphs and tables show the relationship between total annual county emissions and average annual county air quality. A linear regression was run on the data to determine if the relationship has a significant correlation. Harris County data points are highlighted.
 
-```{r Q1 Emissions vs Ozone, echo=FALSE, fig.cap="Average Daily Ozone AQI Value vs. Annual CO2 Equivalent Emissions", warning=FALSE}
+```{r Q1 Emissions vs Ozone, echo=FALSE, fig.cap="Average Daily Ozone AQI Value vs. Annual CO2 Equivalent Emissions (tons). Per Texas County, 2019 - 2023", warning=FALSE}
 #Graph of emissions vs ozone
 Emissions_O3 <- TXEmissions_Ozone %>% 
   ggplot(aes(x = CO2_Equiv, y = Avg_AQI_Ozone))+
@@ -478,9 +476,7 @@ Emissions_O3 <- TXEmissions_Ozone %>%
             color = "black", fill = "NA")+
   geom_text(x=1.4e+07,y=41,size = 4,aes(label = "Harris County"))+
   xlab("Annual CO2 Equivalent Emissions per County (tons)")+
-  ylab("Average Daily Ozone AQI Value per County")+
-  ggtitle("Average Daily Ozone AQI Value vs. Annual CO2 Equivalent Emissions", 
-          subtitle = "Per County, Texas, 2019 - 2023")
+  ylab("Average Daily Ozone AQI Value per County")
 Emissions_O3
 
 ```
@@ -500,7 +496,8 @@ Table: Linear Regression of Emissions vs. Ozone Air Quality
 | R-squared | -0.0043 |
 | Degrees of Freedom |136 | 
 
-```{r Q1 Emissions vs PM2.5, echo=FALSE, fig.cap="Average Daily PM2.5 AQI Value vs. Annual CO2 Equivalent Emissions in Individual Counties", warning=FALSE}
+\newpage
+```{r Q1 Emissions vs PM2.5, echo=FALSE, fig.cap="Average Daily PM2.5 AQI Value vs. Annual CO2 Equivalent Emissions (tons). Per Texas County, 2019 - 2023.", warning=FALSE}
 #Graph of emissions vs PM2.5
 Emissions_PM25<-TXEmissions_PM25 %>% 
   ggplot(aes(x = CO2_Equiv, y = Avg_AQI_PM25))+
@@ -512,10 +509,7 @@ Emissions_PM25<-TXEmissions_PM25 %>%
             color = "black", fill = "NA")+
   geom_text(x=1.4e+07,y=42,size = 4,aes(label = "Harris County"))+
   xlab("Annual CO2 Equivalent Emissions per County (tons)")+
-  ylab("Average Daily PM2.5 AQI Value per County")+
-  ggtitle(
-    "Average Daily PM2.5 AQI Value vs. Annual CO2 Equivalent Emissions in Individual Counties", 
-    subtitle = "Texas, 2019 - 2023")
+  ylab("Average Daily PM2.5 AQI Value per County")
 Emissions_PM25
 
 ```
@@ -904,9 +898,11 @@ CH4.plot
 ```
 
 \newpage
-## Question 3: 
+## Question 3: Is there a relationship between precipitation and air quality between and within the counties of Harris and Dallas in Texas?
 
-```{r Data Import: Air Quality}
+Our third research question investigated the relationship between precipitation and air quality. Additionally, we looked spatially at two counties in Texas, Harris and Dallas, and provide comparative statistical analysis. From this data, we did not see a significant correlation between precipitation and AQI ozone nor precipitation and PM2.5 AQI. In comparing the two counties through two sample t-tests, no statistical difference in mean precipitation was seen at the 95% confidence level. However, mean Ozone and PM2.5 were seen to be different for the counties at the same confidence level.
+
+```{r Data Import: Air Quality, include=FALSE}
 #TX only PM2.5
 TXPM2523_SB <- read.csv(here("Data/TXPM2523.csv")) %>% 
   mutate(Date=mdy(Date)) %>% 
@@ -957,8 +953,12 @@ TXOzone_SB <- rbind(TXOzone19_SB, TXOzone20_SB, TXOzone21_SB, TXOzone22_SB, TXOz
 
 ```
 
+To investigate this questions, data was wrangled for PM2.5 and Ozone to reflect the date and daily value for each year. It was then combined into a data set for the full date range (2019-2023). This was combined again with daily average precipitation data. This dataset was then filtered by county providing one data set with date, precipitation, ozone, and PM2.5 data for Harris and one data set for Dallas. These were combined again for the two sample t-tests.
 
-```{r}
+Precipitation data was reported daily for most stations in the counties (83 in Harris and 44 in Dallas).
+
+```{r Data imported, combined, regression Harris: Precipitation and AQ, include=FALSE}
+#filter by county, average AQI values daily
 TXOzoneHarris <- TXOzone_SB %>%
   filter(County == 'Harris')%>%
   group_by(Date) %>%
@@ -969,6 +969,7 @@ TXPM25Harris <- TXPM25_SB %>%
   group_by(Date) %>%
   summarise(Avg_AQI_PM = mean(Daily.AQI.Value),County='Harris')
 
+#import precipitation, as.date, average data daily, select columns
 HarrisCoRain <- read.csv(here("Data/HarrisCoRain.csv"))%>%
   na.omit(PRCP)%>%
   group_by(DATE) %>%
@@ -976,17 +977,19 @@ HarrisCoRain <- read.csv(here("Data/HarrisCoRain.csv"))%>%
   mutate(Date=mdy(DATE))%>%
   select("Date","Avg_Rain")
 
+#join Ozone and precipitation
 HarrisCoRain_AQ1 <- left_join(TXOzoneHarris, HarrisCoRain)  
                               by = c("Date")
-
+#join PM2.5
 HarrisCoRain_AQ <- left_join(HarrisCoRain_AQ1, TXPM25Harris)  
                               by = c("Date")
-
+##linear regression precipitation and ozone
 HarrisRainOzone.regression <- lm(
   data = HarrisCoRain_AQ,
   Avg_Rain ~ Avg_AQI_Ozone)
 summary(HarrisRainOzone.regression)
 
+#linear regression precipitation and PM
 HarrisRainPM.regression <- lm(
   data = HarrisCoRain_AQ,
   Avg_Rain ~ Avg_AQI_PM)
@@ -994,7 +997,8 @@ summary(HarrisRainPM.regression)
                                                            
 ```
 
-```{r}
+
+```{r Data imported, combined, regression Dallas: Precipitation and AQ, include=FALSE}
 
 TXOzoneDallas <- TXOzone_SB %>%
   filter(County == 'Dallas')%>%
@@ -1018,12 +1022,13 @@ DallasCoRain_AQ1 <- left_join(TXOzoneDallas, DallasCoRain)
 
 DallasCoRain_AQ <- left_join(DallasCoRain_AQ1, TXPM25Dallas)  
                               by = c("Date")
-
+#linear regression precipitation and ozone
 DallasRainOzone.regression <- lm(
   data = DallasCoRain_AQ,
   Avg_Rain ~ Avg_AQI_Ozone)
 summary(DallasRainOzone.regression)
 
+#linear regression precipitation and PM
 DallasRainPM.regression <- lm(
   data = DallasCoRain_AQ,
   Avg_Rain ~ Avg_AQI_PM)
@@ -1031,92 +1036,190 @@ summary(DallasRainPM.regression)
 
 ```
 
-```{r}
-
+```{r Dallas and Harris two sample t tests, include=FALSE}
+#combine county data
 HarrisDallas <- rbind(HarrisCoRain_AQ, DallasCoRain_AQ)
 
-HarrisDallasRain.anova <- aov(data = HarrisDallas, Avg_Rain ~ County)
-summary(HarrisDallasRain.anova)
+Rain.twosample <- t.test(HarrisDallas$Avg_Rain ~ HarrisDallas$County)
+Rain.twosample
 
-HarrisDallasOzone.anova <- aov(data = HarrisDallas, Avg_AQI_Ozone ~ County)
-summary(HarrisDallasOzone.anova)
+O3.twosample <- t.test(HarrisDallas$Avg_AQI_Ozone ~ HarrisDallas$County)
+O3.twosample
 
-HarrisDallasPM.anova <- aov(data = HarrisDallas, Avg_AQI_PM ~ County)
-summary(HarrisDallasPM.anova)
+PM.twosample <- t.test(HarrisDallas$Avg_AQI_PM ~ HarrisDallas$County)
+PM.twosample
 
 ```
 
+The graphs below provide a visual representation of the three considered environmental variables for Harris and Dallas County. A trend line is included to visualize general change over time.
 
-```{r}
+```{r Graph of rain Harris, echo=FALSE, fig.cap='Precipitation Harris County, 2019 - 2023', message=FALSE, warning=FALSE, fig.height=3.75}
 Rainplot<-HarrisCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_Rain))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="Rainfall (in)")+
+  ylim(0,5)+
   geom_point(size=0.5)+
-  ggtitle('Harris County Rainfall 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  geom_smooth(method = "lm")
 print(Rainplot)
+```
 
+```{r Graph of rain Dallas, echo=FALSE, fig.cap='Precipitation Dallas County, 2019 - 2023', message=FALSE, warning=FALSE,fig.height=3.75}
 Rainplot2<-DallasCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_Rain))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="Rainfall (in)")+
+  ylim(0,5)+
   geom_point(size=0.5)+
-  ggtitle('Dallas County Rainfall 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  geom_smooth(method = "lm")
 print(Rainplot2)
+```
 
+```{r Graph of ozone Harris, echo=FALSE, fig.cap='Ozone AQI Harris County, 2019 - 2023', message=FALSE, warning=FALSE,fig.height=3.75}
 Ozoneplot<-HarrisCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_AQI_Ozone))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="Ozone AQI")+
+  ylim(0,150)+
   geom_point(size=0.5)+
-  ggtitle('Harris County Ozone 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  geom_smooth(method = "lm")
 print(Ozoneplot)
+```
 
+```{r Graph of ozone Dallas, echo=FALSE, fig.cap='Ozone AQI Dallas County, 2019 - 2023', message=FALSE, warning=FALSE,fig.height=3.75}
 Ozoneplot2<-DallasCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_AQI_Ozone))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="Ozone AQI")+
+  ylim(0,150)+
   geom_point(size=0.5)+
-  ggtitle('Dallas County Ozone 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  geom_smooth(method = "lm")
 print(Ozoneplot2)
+```
 
+```{r Graph of PM Harris, echo=FALSE, fig.cap='PM2.5 AQI Harris County, 2019 - 2023', message=FALSE, warning=FALSE,fig.height=3.75}
 PMplot<-HarrisCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_AQI_PM))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="PM 2.5 AQI")+
+  ylim(0,150)+
   geom_point(size=0.5)+
-  ggtitle('Harris County PM 2.5 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  geom_smooth(method = "lm")
 print(PMplot)
+```
+
+```{r Graph of PM Dallas, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3.75, fig.cap='PM2.5 AQI Dallas County, 2019 - 2023'}
 
 PMplot2<-DallasCoRain_AQ%>%
   ggplot(aes(
     x=Date,
     y=Avg_AQI_PM))+
+  scale_x_date(date_breaks = "1 year", date_labels = "'%y")+
   labs(
     x="Date",
     y="PM 2.5 AQI")+
+  ylim(0,150)+
   geom_point(size=0.5)+
-  ggtitle('Dallas County PM 2.5 2019-2023')
+  theme(plot.title = element_text(size = 11))+
+  geom_smooth(method = "lm")
 print(PMplot2)
-
 
 ```
 
+\newpage
+
+A separate linear regression was performed for Harris county and Dallas county for precipitation vs ozone AQI and precipitation vs PM2.5 AQI to assess precipitation as an explanatory variable for air quality.
+
+Table: Linear Regression of Precipitation vs. Ozone Air Quality Harris County
+
+|Item | Value | 
+|-------:|:------|
+| P-value | 2.557e-07 |
+| R-squared | 0.01396 |
+| Degrees of Freedom |1819 | 
+
+Table: Linear Regression of Precipitation vs. PM2.5 Air Quality Harris County
+
+|Item | Value | 
+|-------:|:------|
+| P-value | 2.2e-16 |
+| R-squared | 0.06065 |
+| Degrees of Freedom |1819 | 
+
+Table: Linear Regression of Precipitation vs. Ozone Air Quality Dallas County 
+
+|Item | Value | 
+|-------:|:------|
+| P-value | 2.933e-07 |
+| R-squared | 0.01382 |
+| Degrees of Freedom |1818 | 
+
+Table: Linear Regression of Precipitation vs. PM2.5 Air Quality Dallas County 
+
+|Item | Value | 
+|-------:|:------|
+| P-value | 2.2e-16 |
+| R-squared | 0.0865 |
+| Degrees of Freedom |1778 | 
+
+The tables above show that each of the four regressions returned a low p-value and a low r-squared value. This means that precipitation is not a good predictor for ozone AQI nor PM2.5 AQI in these two counties and the investigated time span.
+
+\newpage
+A two sample t-test was performed for Harris county and Dallas county to assess if the mean precipitation, ozone AQI, and PM2.5 AQI were the same or different for the two counties. 
+
+Null Hypothesis: mu1 is equal to mu2
+Alternative Hypothesis mu1 is not equal to mu2
+
+Table: Dallas vs Harris Two Sample T test Mean Precipitation
+
+|Item | Value | 
+|-------:|:------|
+| t-value | -2.1297 |
+| p-value | 0.03326 |
+| Degrees of Freedom |3610 | 
+
+Table: Dallas vs Harris Two Sample T test Mean AQI Ozone
+
+|Item | Value | 
+|-------:|:------|
+| t-value | 6.3494 |
+| p-value | 2.429e-10 |
+| Degrees of Freedom |3632.9 | 
+
+Table: Dallas vs Harris Two Sample T test Mean AQI PM2.5
+
+|Item | Value | 
+|-------:|:------|
+| t-value | -7.3386 |
+| p-value | 2.675e-13 |
+| Degrees of Freedom |3465.7 |  
+
+For all the variables (precipitation, ozone AQI, and PM2.5 AQI), the two sample t tests returned p-values less than 0.05. This supports the alternative hypothesis that there is a statistically significant difference in the means of these variables between the two counties.
 
 
 \newpage
@@ -1125,7 +1228,11 @@ print(PMplot2)
 
 The analysis of correlation between air quality and emissions at the county level per year did not result in significant results. There is not a significant correlation between annual county emission from power plants and average annual county AQI score from Ozone or PM2.5. Additionally, no county on average saw any poor or unsafe Air Quality Index levels. There are three potential factors influencing this lack of correlation. One is that air quality and emissions cannot be studied at localized scale. Likely emissions disperse out of the county it is in based on local weather patterns. Conducting analysis of local air quality based on power plant emissions might be more accurate if wind patterns were taken into consideration to estimate where emissions may be concentrating. Another reason is that topography plays a role in where emissions and particulates accumulate. For example, pollution commonly gets trapped in valleys. Therefore, including topography into the analysis might elucidate more clear patterns. Lastly, there may not be a correlation is because there are not enough data points in this analysis to see a trend. All plants do not report emissions and there are not air quality stations in all counties. To perform this analysis more accurately, data should be looked at country wide and there should be better standards for ensuring all active power plants report their emissions.
 \newline
+\newline
 Ground level ozone is more likely to form in high heat and sunlight, when nitrogen oxides react with VOCs. This report mainly focused on total CO2 equivalent emissions. The emissions that are summed include SO2, CO2, CH4, and N2O.  Since all but methane are not VOCs, we thought it would be interesting to explore the relationship specifically between methane and ozone over time in one isolated location with abundant emissions and air quality data. As shown in Figure 6 and Figure 8, analysis of ozone AQI showed an increase from 2019-2023 in Harris county, Texas, while methane emissions decreased in that same time period. Our results did not indicate a positive relationship between methane and ozone. 
+\newline
+\newline
+In the case of precipitation, the data did not show this variable to be explanatory to the ozone or PM2.5 AQI at a statistically significant level for these counties and the time frame of interest. However, the mean precipitation, ozone AQI, and PM2.5 AQI were found to be different between Harris and Dallas at an alpha level of 0.05. This is surprising in some ways, as some pollutants can partition into water droplets as in rains and subsequently improve air quality. Additionally, rainfall can be associated with wind as a co-variable which may also be expected to improve air quality by diluting pollution through mixing. It would be interesting to investigate if these trends told true on a larger analysis scope such as looking at more counties in Texas, looking at the state level nationally, or looking at a large time span. The difference in mean precipitation, ozone AQI, and PM2.5 AQI levels between the counties makes sense because Harris County is located on the gulf of Mexico while Dallas county is in northeast Texas further inland so it is expected to see differences in climate and air movement. This investigation does not provide insight as to whether location is a causative variable or if there is another reason for this difference, such as industrial production levels between the counties. This would be another interesting direction for future research.
 
 \newpage
 
