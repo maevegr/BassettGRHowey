@@ -4,7 +4,12 @@ output:
   html_document: default
 editor_options:
   chunk_output_type: console
+
+title: 'ENV 872: Final Project'
+author: "Sara Bassett, Maeve Gualtieri-Reed, Xia Meng Howey" 
+date: "December 12, 2025"
 ---
+
 \newpage
 \tableofcontents 
 \newpage
@@ -948,7 +953,8 @@ To investigate this questions, data was wrangled for PM2.5 and Ozone to reflect 
 
 Precipitation data was reported daily for most stations in the counties (83 in Harris and 44 in Dallas).
 
-```{r include=FALSE}
+```{r Data imported, combined, regression Harris: Precipitation and AQ, include=FALSE}
+#filter by county, average AQI values daily
 TXOzoneHarris <- TXOzone_SB %>%
   filter(County == 'Harris')%>%
   group_by(Date) %>%
@@ -959,6 +965,7 @@ TXPM25Harris <- TXPM25_SB %>%
   group_by(Date) %>%
   summarise(Avg_AQI_PM = mean(Daily.AQI.Value),County='Harris')
 
+#import precipitation, as.date, average data daily, select columns
 HarrisCoRain <- read.csv(here("Data/HarrisCoRain.csv"))%>%
   na.omit(PRCP)%>%
   group_by(DATE) %>%
@@ -966,17 +973,19 @@ HarrisCoRain <- read.csv(here("Data/HarrisCoRain.csv"))%>%
   mutate(Date=mdy(DATE))%>%
   select("Date","Avg_Rain")
 
+#join Ozone and precipitation
 HarrisCoRain_AQ1 <- left_join(TXOzoneHarris, HarrisCoRain)  
                               by = c("Date")
-
+#join PM2.5
 HarrisCoRain_AQ <- left_join(HarrisCoRain_AQ1, TXPM25Harris)  
                               by = c("Date")
-
+##linear regression precipitation and ozone
 HarrisRainOzone.regression <- lm(
   data = HarrisCoRain_AQ,
   Avg_Rain ~ Avg_AQI_Ozone)
 summary(HarrisRainOzone.regression)
 
+#linear regression precipitation and PM
 HarrisRainPM.regression <- lm(
   data = HarrisCoRain_AQ,
   Avg_Rain ~ Avg_AQI_PM)
@@ -985,7 +994,7 @@ summary(HarrisRainPM.regression)
 ```
 
 
-```{r include=FALSE}
+```{r Data imported, combined, regression Dallas: Precipitation and AQ, include=FALSE}
 
 TXOzoneDallas <- TXOzone_SB %>%
   filter(County == 'Dallas')%>%
@@ -1009,12 +1018,13 @@ DallasCoRain_AQ1 <- left_join(TXOzoneDallas, DallasCoRain)
 
 DallasCoRain_AQ <- left_join(DallasCoRain_AQ1, TXPM25Dallas)  
                               by = c("Date")
-
+#linear regression precipitation and ozone
 DallasRainOzone.regression <- lm(
   data = DallasCoRain_AQ,
   Avg_Rain ~ Avg_AQI_Ozone)
 summary(DallasRainOzone.regression)
 
+#linear regression precipitation and PM
 DallasRainPM.regression <- lm(
   data = DallasCoRain_AQ,
   Avg_Rain ~ Avg_AQI_PM)
@@ -1022,8 +1032,8 @@ summary(DallasRainPM.regression)
 
 ```
 
-```{r include=FALSE}
-
+```{r Dallas and Harris two sample t tests, include=FALSE}
+#combine county data
 HarrisDallas <- rbind(HarrisCoRain_AQ, DallasCoRain_AQ)
 
 Rain.twosample <- t.test(HarrisDallas$Avg_Rain ~ HarrisDallas$County)
@@ -1039,7 +1049,7 @@ PM.twosample
 
 The graphs below provide a visual representation of the three considered environmental variables for Harris and Dallas County. A trend line is included to visualize general change over time.
 
-```{r echo=FALSE, fig.height=4, message=FALSE, warning=FALSE}
+```{r Graph of rain Harris, echo=FALSE, fig.cap='Precipitation Harris County', message=FALSE, warning=FALSE, fig.height=3.75}
 Rainplot<-HarrisCoRain_AQ%>%
   ggplot(aes(
     x=Date,
@@ -1054,7 +1064,9 @@ Rainplot<-HarrisCoRain_AQ%>%
   ggtitle('Harris County Rainfall 2019-2023')+
   geom_smooth(method = "lm")
 print(Rainplot)
+```
 
+```{r Graph of rain Dallas, echo=FALSE, fig.cap='Precipitation Dallas County', message=FALSE, warning=FALSE,fig.height=3.75}
 Rainplot2<-DallasCoRain_AQ%>%
   ggplot(aes(
     x=Date,
@@ -1069,7 +1081,9 @@ Rainplot2<-DallasCoRain_AQ%>%
   ggtitle('Dallas County Rainfall 2019-2023')+
   geom_smooth(method = "lm")
 print(Rainplot2)
+```
 
+```{r Graph of ozone Harris, echo=FALSE, fig.cap='Ozone AQI Harris County', message=FALSE, warning=FALSE,fig.height=3.75}
 Ozoneplot<-HarrisCoRain_AQ%>%
   ggplot(aes(
     x=Date,
@@ -1084,7 +1098,9 @@ Ozoneplot<-HarrisCoRain_AQ%>%
   ggtitle('Harris County Ozone 2019-2023')+
   geom_smooth(method = "lm")
 print(Ozoneplot)
+```
 
+```{r Graph of ozone Dallas, echo=FALSE, fig.cap='Ozone AQI Dallas County', message=FALSE, warning=FALSE,fig.height=3.75}
 Ozoneplot2<-DallasCoRain_AQ%>%
   ggplot(aes(
     x=Date,
@@ -1099,7 +1115,9 @@ Ozoneplot2<-DallasCoRain_AQ%>%
   ggtitle('Dallas County Ozone 2019-2023')+
   geom_smooth(method = "lm")
 print(Ozoneplot2)
+```
 
+```{r Graph of PM Harris, echo=FALSE, fig.cap='PM2.5 AQI Harris County', message=FALSE, warning=FALSE,fig.height=3.75}
 PMplot<-HarrisCoRain_AQ%>%
   ggplot(aes(
     x=Date,
@@ -1114,6 +1132,9 @@ PMplot<-HarrisCoRain_AQ%>%
   ggtitle('Harris County PM 2.5 2019-2023')+
   geom_smooth(method = "lm")
 print(PMplot)
+```
+
+```{r Graph of PM Dallas, echo=FALSE, fig.cap='PM2.5 AQI Dallas County', message=FALSE, warning=FALSE,fig.height=3.75}
 
 PMplot2<-DallasCoRain_AQ%>%
   ggplot(aes(
